@@ -12,7 +12,7 @@
 	<artifactId>forumhub</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>forumhub</name>
-	<description>Desafio de criação de funções básicas de um forúm da plataforma alura.</description>
+	<description>Desafio de criação de funções básicas de um forúm.</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -63,9 +63,12 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>1.18.36</version>
+				<scope>provided</scope>
+
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -81,10 +84,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>1.18.36</version>
+							</path>
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
