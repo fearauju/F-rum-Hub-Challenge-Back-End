@@ -29,8 +29,4 @@ public class Escola {
     public Escola(@Valid DadosCadastroEscola dados) {
         this.nomeEscola = dados.nomeEscola();
     }
-
-    public Escola(DadosCadastroFormacao dados) {
-        this.formacao.forEach(f -> setId(dados.escola_id()));
-    }
 }

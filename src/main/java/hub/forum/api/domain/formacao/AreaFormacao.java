@@ -2,12 +2,14 @@ package hub.forum.api.domain.formacao;
 
 public enum AreaFormacao {
 
-    PROGRAMACAO,
+    CRIACAO_EDICAO_VIDEOS,
     DATA_SCIENCE,
-    INOVACAO_E_GESTAO,
-    FRONT_END,
-    UX_DESIGN,
-    MOBILE,
     DEV_OPS,
-    IA
+    FRONT_END,
+    IA,
+    INOVACAO_E_GESTAO,
+    MOBILE,
+    PROGRAMACAO,
+    UX_DESIGN
+
 }

@@ -1,6 +1,8 @@
-package hub.forum.api.domain;
+package hub.forum.api.domain.topico;
 
 import hub.forum.api.domain.curso.Curso;
+import hub.forum.api.domain.pefil.Perfil;
+import hub.forum.api.domain.resposta.Resposta;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,8 +37,8 @@ public class Topico {
     private Curso curso;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @JoinColumn(name = "perfil_id")
+    private Perfil perfil;
 
     @OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
     private List<Resposta> resposta = new ArrayList<>();

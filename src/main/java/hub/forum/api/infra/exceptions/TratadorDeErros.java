@@ -7,10 +7,15 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.List;
@@ -34,6 +39,7 @@ public class TratadorDeErros {
         return ResponseEntity.badRequest().body(erroExposto);
     }
 
+
     @Setter
     @Getter
     public static class ErroValidacaoDto{
@@ -54,6 +60,7 @@ public class TratadorDeErros {
         }
     }
 
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Void> tratarErro404(){
         return ResponseEntity.notFound().build();
@@ -68,17 +75,28 @@ public class TratadorDeErros {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + ex.getLocalizedMessage());
     }
 
-//    @ExceptionHandler(BadCredentialsException.class)
-//    public ResponseEntity<String> tratarErroBadCredentials() {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
-//    }
-//
-//    @ExceptionHandler(AuthenticationException.class)
-//    public ResponseEntity<String> tratarErroAuthentication() {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação");
-//    }
-//
-//    @ExceptionHandler(AccessDeniedException.class)
-//    public ResponseEntity<String> tratarErroAcessoNegado() {
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado");
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> tratarErroNotFound(ResponseStatusException ex){
+        return ResponseEntity.status(ex.getStatusCode()).body("Erro: " + ex.getReason());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> tratarErroBadCredentials() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> tratarErroAuthentication() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> tratarErroAcessoNegado() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado");
+    }
 }

@@ -1,5 +1,7 @@
-package hub.forum.api.domain;
+package hub.forum.api.domain.resposta;
 
+import hub.forum.api.domain.pefil.Perfil;
+import hub.forum.api.domain.topico.Topico;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,8 +23,8 @@ public class Resposta {
     private boolean solucao; // Toda a resposta tem solução setada falso por padrão
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @JoinColumn(name = "perfil_id")
+    private Perfil perfil;
 
     @ManyToOne
     @JoinColumn(name = "topico_id")
