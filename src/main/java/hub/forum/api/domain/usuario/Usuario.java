@@ -25,10 +25,10 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class Usuario implements UserDetails {
 
+    private static final int LIMITE_FALHAS = 4;
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private static final int LIMITE_FALHAS = 4;
 
     private String login; // será o E-mail: do usuario e deve ser único
     private String senha; // deve ser em hash --> BCrypt
@@ -50,15 +50,15 @@ public class Usuario implements UserDetails {
     @Future
     private LocalDateTime expiracaoAssinatura; //// this.expiracaoAssinatura = dataAssinatura.toLocaldate().plusYears(1);
 
-
     public boolean validarAssinaturaAtiva() {
         return expiracaoAssinatura != null && expiracaoAssinatura.isAfter(LocalDate.now().atStartOfDay());
     }
 
 
-    @OneToOne
-    @JoinColumn(name = "perfil_id", nullable = false, unique = true) // relacionamento unilateral
+
+    @OneToOne(mappedBy = "usuario", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     private Perfil perfil;
+
 
 
     // métodos para validar falhas de "login" e reset de falhas
@@ -69,8 +69,6 @@ public class Usuario implements UserDetails {
     private  void resetarFalhasDeLogin(){
         this.falhasLogin = 0;
     }
-
-
 
     //métodos da interface
     @Override

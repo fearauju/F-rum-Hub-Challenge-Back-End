@@ -1,6 +1,7 @@
 package hub.forum.api.domain.pefil;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import hub.forum.api.domain.usuario.TipoUsuario;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -20,6 +21,6 @@ public record DadosPerfil(
         LocalDate dataNascimento,
 
         @NotNull(message = "O tipo de perfil é obrigatório e deve ser escrito em letras maiúsculas")
-        TipoPerfil tipoPerfil
+        TipoUsuario tipoUsuario
 ) {
 }

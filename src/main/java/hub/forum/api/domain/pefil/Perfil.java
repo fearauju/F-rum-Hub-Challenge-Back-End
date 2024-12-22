@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import hub.forum.api.domain.curso.Curso;
 import hub.forum.api.domain.resposta.Resposta;
 import hub.forum.api.domain.topico.Topico;
+import hub.forum.api.domain.usuario.TipoUsuario;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +15,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity(name = "Perfil")
@@ -42,9 +42,10 @@ public class Perfil {
 
     @NotNull(message = "O tipo de perfil é obrigatório e deve ser escrito em letras maiúsculas")
     @Enumerated(EnumType.STRING)
-    private TipoPerfil tipoPerfil;
+    private TipoUsuario tipoUsuario;
 
-    @OneToOne(mappedBy = "perfil", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
+    @OneToOne
+    @JoinColumn(name = "usuario_id")
     private Usuario  usuario;
 
     @ManyToMany(mappedBy = "perfil")

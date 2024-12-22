@@ -1,6 +1,6 @@
-package hub.forum.api.domain.pefil;
+package hub.forum.api.domain.usuario;
 
-public enum TipoPerfil {
+public enum TipoUsuario {
 
     ADMINISTRADOR,
     ESTUDANTE,
