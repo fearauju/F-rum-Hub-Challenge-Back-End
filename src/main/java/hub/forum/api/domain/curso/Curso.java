@@ -1,9 +1,8 @@
 package hub.forum.api.domain.curso;
 
-import hub.forum.api.domain.pefil.Perfil;
 import hub.forum.api.domain.topico.Topico;
 import hub.forum.api.domain.formacao.Formacao;
-import hub.forum.api.domain.usuario.Usuario;
+import hub.forum.api.domain.usuario.Matricula;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -31,13 +30,8 @@ public class Curso {
     @JoinColumn(name = "formacao_id")
     private Formacao formacao;
 
-    @ManyToMany
-    @JoinTable(
-            name = "cursos_perfis",
-            joinColumns = @JoinColumn(name = "curso_id"),
-            inverseJoinColumns = @JoinColumn(name = "perfil_id")
-    )
-    private List<Perfil> perfil = new ArrayList<>();
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
+    private List<Matricula> matriculas;
 
     @OneToMany(mappedBy = "curso")
     private List<Topico> topico = new ArrayList<>();

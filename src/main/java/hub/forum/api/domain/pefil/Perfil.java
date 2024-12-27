@@ -1,10 +1,6 @@
 package hub.forum.api.domain.pefil;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import hub.forum.api.domain.curso.Curso;
-import hub.forum.api.domain.resposta.Resposta;
-import hub.forum.api.domain.topico.Topico;
-import hub.forum.api.domain.usuario.TipoUsuario;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -14,8 +10,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity(name = "Perfil")
 @Table(name = "perfis")
@@ -30,34 +24,25 @@ public class Perfil {
     private long id;
 
     // validações para cadastro interno
+    //fazer pelo mysql todas as regex e validações, se possível.
 
     @NotBlank(message = "O nome é obrigatório")
     @Pattern(regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ ]+$", message = "O nome deve conter apenas letras e espaços")
     private String nome;
+
+    @NotBlank
+    private String descricaoPessoal;
 
     @NotNull(message = "A data de nascimento é obrigatória")
     @Past(message = "A data de nascimento deve estar no passado")
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataNascimento;
 
-    @NotNull(message = "O tipo de perfil é obrigatório e deve ser escrito em letras maiúsculas")
-    @Enumerated(EnumType.STRING)
-    private TipoUsuario tipoUsuario;
-
     @OneToOne
     @JoinColumn(name = "usuario_id")
     private Usuario  usuario;
 
-    @ManyToMany(mappedBy = "perfil")
-    private List<Curso> curso = new ArrayList<>();
-
-    @OneToMany(mappedBy = "perfil", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Topico> topico = new ArrayList<>();
-
-    @OneToMany(mappedBy = "perfil", cascade = CascadeType.ALL)
-    private List<Resposta> resposta = new ArrayList<>();
-
     public Perfil(@NotBlank DadosPerfil dadosUsuario) {
-        this.nome = dadosUsuario.nome();
+        this.nome = dadosUsuario.nome(); //usuário pode alterar o seu próprio perfil
     }
 }

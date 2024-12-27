@@ -1,91 +1,84 @@
 package hub.forum.api.infra.security;
 
-
 import hub.forum.api.domain.usuario.Usuario;
-import hub.forum.api.domain.usuario.UsuarioRepository;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.MalformedClaimException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.keys.HmacKey;
-import org.jose4j.lang.JoseException;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
 
 @Service
+@Slf4j
 public class TokenService {
 
     @Value("${api.security.token.secret}")
-    private static String secretKey ;
+    private String secretKey;
 
-    @Autowired
-    private UsuarioRepository repository;
+    @Value("${api.security.token.expiration}")
+    private int tokenExpirationInMinutes;
 
-    // Gera um token JWT
-    public String gerarToken(Usuario usuario) throws JoseException {
+    private Key key;
 
-        JwtClaims claims = new JwtClaims();
-
-        claims.setIssuer("API Forum.hub"); // Quem emite o token
-        claims.setAudience("meu-cliente"); // Quem pode usar o token
-        claims.setExpirationTimeMinutesInTheFuture(120); // Expira em 120 minutos
-        claims.setGeneratedJwtId(); // Gera um ID único
-        claims.setIssuedAtToNow(); // Data de emissão
-        claims.setSubject(usuario.getLogin()); // Identificação do usuário
-        claims.setClaim("role", usuario.getAuthorities()); // Adiciona o papel do usuário
-
-        JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(claims.toJson());
-        jws.setKey(new HmacKey(secretKey.getBytes())); // Assina com a chave secreta
-        jws.setAlgorithmHeaderValue("HS256");
-
-        return jws.getCompactSerialization();
+    private Key getSigningKey() {
+        if (key == null) {
+            key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        }
+        return key;
     }
 
-    // Valida o token JWT e retorna o subject (identificação do usuário)
-    public String getSubject(String token) {
+    public String gerarToken(Usuario usuario) {
+        log.debug("Gerando token para usuário: {}", usuario.getLogin());
+        String token = Jwts.builder()
+                .setSubject(usuario.getLogin())
+                .setIssuer("API Forum.hub")
+                .setAudience("meu-cliente")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + (tokenExpirationInMinutes * 60 * 1000L)))
+                .signWith(getSigningKey())
+                .compact();
+        log.debug("Token gerado com sucesso");
+        return token;
+    }
+
+    public String getSubject (String token){
         try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey()) // Usa a chave inicializada
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                    .setRequireExpirationTime() // Exige que o token tenha tempo de expiração
-                    .setExpectedIssuer("API Forum.hub") // Valida o emissor
-                    .setExpectedAudience("usuario") // Valida o destinatário
-                    .setVerificationKey(new HmacKey(secretKey.getBytes())) // Chave secreta
-                    .build();
+            System.out.println(getSigningKey());
+            System.out.println(claims.getSubject());
 
-            // Decodifica e valida o token
-            JwtClaims claims = jwtConsumer.processToClaims(token);
-
-            // Retorna o subject (login do usuário)
             return claims.getSubject();
-
         } catch (Exception e) {
             throw new RuntimeException("Token inválido ou expirado!", e);
         }
     }
 
+    public String validarToken(String token) {
+        try {
+            log.debug("Iniciando validação do token");
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey()) // Aqui está a correção
+                    .requireIssuer("API Forum.hub")
+                    .requireAudience("meu-cliente")
+                    .build()
+                    .parseClaimsJws(token);
 
-    public static void verificarToken(String token) throws Exception {
-        // 1. Configurar o consumidor JWT
-        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                .setRequireExpirationTime() // O token deve expirar
-                .setExpectedIssuer("API Forum.hub") // Valida o emissor
-                .setExpectedAudience("usuario") // Valida o destinatário
-                .setVerificationKey(new HmacKey(secretKey.getBytes())) // Chave secreta
-                .build();
-
-        // 2. Validar e processar o token
-        jwtConsumer.processToClaims(token); // Decodifica e valida as claims
-        System.out.println("Token JWT válido!");
-    }
-
-    private Instant dataExpiracao() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+            String subject = claimsJws.getBody().getSubject();
+            log.debug("Token válido para o usuário: {}", subject);
+            return subject;
+        } catch (JwtException e) {
+            log.error("Erro na validação do token: ", e);
+            throw new RuntimeException("Token inválido ou expirado!", e);
+        }
     }
 }
+
+

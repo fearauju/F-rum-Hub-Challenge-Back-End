@@ -5,8 +5,6 @@ import hub.forum.api.domain.usuario.Usuario;
 import hub.forum.api.infra.security.DadosTokenJWT;
 import hub.forum.api.infra.security.TokenService;
 import jakarta.validation.Valid;
-import org.jose4j.jwt.MalformedClaimException;
-import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +23,7 @@ public class AutenticacaoController {
     private TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) throws JoseException, MalformedClaimException {
+    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados)  {
 
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(),dados.senha());
         var authentication = authenticationManager.authenticate(authenticationToken);

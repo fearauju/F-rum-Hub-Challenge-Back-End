@@ -1,11 +1,13 @@
 package hub.forum.api.domain.escola;
 
 public record DadosDetalhamentoEscola(
-        Long id,
+
+        Long id_usuario,
+        Long id_escola,
         String nomeEscola
 ) {
 
-    public DadosDetalhamentoEscola(Escola escola){
-        this(escola.getId(), escola.getNomeEscola());
+    public DadosDetalhamentoEscola(DadosDetalhamentoEscola detalhamentoEscola){
+        this(detalhamentoEscola.id_usuario(), detalhamentoEscola.id_escola(), detalhamentoEscola.nomeEscola());
     }
 }

@@ -2,6 +2,7 @@ package hub.forum.api.domain.formacao;
 
 import hub.forum.api.domain.curso.Curso;
 import hub.forum.api.domain.escola.Escola;
+import hub.forum.api.domain.usuario.Professor;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -37,6 +38,10 @@ public class Formacao {
 
     @OneToMany(mappedBy = "formacao", cascade = CascadeType.ALL)
     private List<Curso> cursos = new ArrayList<>();
+
+    @ManyToOne()
+    @JoinColumn(name = "professor_id")
+    private Professor professor;
 
     public Formacao(@Valid DadosCadastroFormacao dados, Escola escola) {
 

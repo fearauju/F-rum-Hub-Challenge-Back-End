@@ -4,9 +4,11 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestControllerAdvice
+@Slf4j
 public class TratadorDeErros {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -60,6 +63,18 @@ public class TratadorDeErros {
         }
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> tratarErroGenerico(Exception ex) {
+        log.error("Erro não esperado: ", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ocorreu um erro interno no servidor.");
+    }
+
+    @ExceptionHandler(TokenInvalidoException.class)
+    public ResponseEntity<String> erroToken(Exception ex){
+        return ResponseEntity.badRequest().body(ex.getCause().getMessage());
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Void> tratarErro404(){
@@ -70,9 +85,20 @@ public class TratadorDeErros {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> tratarErro500(Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + ex.getLocalizedMessage());
+    @ExceptionHandler(JpaSystemException.class)
+    public ResponseEntity<String> tratarErroConsulta(JpaSystemException ex) {
+        log.error("Erro ao executar consulta JPA: ", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao processar a requisição. Por favor, tente novamente.");
+    }
+
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity<String> tratarErroValidacao(ValidacaoException ex) {
+        log.error("Erro de validação: ", ex);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
     }
 
     @ExceptionHandler(ResponseStatusException.class)

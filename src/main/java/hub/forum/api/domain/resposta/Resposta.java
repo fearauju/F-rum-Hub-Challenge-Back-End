@@ -2,6 +2,7 @@ package hub.forum.api.domain.resposta;
 
 import hub.forum.api.domain.pefil.Perfil;
 import hub.forum.api.domain.topico.Topico;
+import hub.forum.api.domain.usuario.Suporte;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,13 +21,13 @@ public class Resposta {
 
     private String mensagem;
     private String dataCriacao;
-    private boolean solucao; // Toda a resposta tem solução setada falso por padrão
-
-    @ManyToOne
-    @JoinColumn(name = "perfil_id")
-    private Perfil perfil;
+    private boolean melhor_resposta; // se tiver melhor resposta tópico é fechado
 
     @ManyToOne
     @JoinColumn(name = "topico_id")
     private Topico topico;
+
+    @ManyToOne(optional = false) // Cada resposta tem um único autor
+    @JoinColumn(name = "autor_id") // O autor está relacionado à tabela "usuarios"
+    private Usuario autor;
 }

@@ -1,1 +1,0 @@
-ALTER TABLE perfis DROP COLUMN tipo_perfil;

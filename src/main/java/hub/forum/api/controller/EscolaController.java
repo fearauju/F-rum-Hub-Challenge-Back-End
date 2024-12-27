@@ -1,9 +1,6 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.escola.DadosCadastroEscola;
-import hub.forum.api.domain.escola.DadosDetalhamentoEscola;
-import hub.forum.api.domain.escola.Escola;
-import hub.forum.api.domain.escola.EscolaRepository;
+import hub.forum.api.domain.escola.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +16,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class EscolaController {
 
     @Autowired
-    EscolaRepository repository;
+    EscolaService service;
 
     @PostMapping
     @Transactional
     public ResponseEntity<DadosDetalhamentoEscola> cadastrar(@RequestBody @Valid DadosCadastroEscola dados, UriComponentsBuilder uriComponentsBuilder){
 
-        var escola = new Escola(dados);
-        repository.save(escola);
+        var detalhamentoEscola =  service.cadastrarEscola(dados);
 
-        var uri = uriComponentsBuilder.path("/escolas/{id}").buildAndExpand(escola.getId()).toUri();
+        var uri = uriComponentsBuilder.path("/escolas/{id}").buildAndExpand(detalhamentoEscola.id_escola()).toUri();
 
-        return  ResponseEntity.created(uri).body(new DadosDetalhamentoEscola(escola));
+        return  ResponseEntity.created(uri).body(new DadosDetalhamentoEscola(detalhamentoEscola));
     }
 }
