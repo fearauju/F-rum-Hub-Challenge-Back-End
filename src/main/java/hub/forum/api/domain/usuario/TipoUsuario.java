@@ -25,7 +25,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean renovarAssinatura() {
+        public boolean podeRenovarAssinatura() {
             return true; //apenas para ter a função como exemplo, não terá renovação por meio de pagamento
         }
 
@@ -35,12 +35,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podePesquisarPorDadosDePerfil() {
-            return true;
-        }
-
-        @Override
-        public boolean temAcessoACursos() {
+        public boolean podeAcessarCursos() {
             return false; // assistir as aulas
         }
 
@@ -51,23 +46,19 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeAtualizarCursos() {
+            return false;
+        }
+
+        @Override
+        public boolean podeCadastrarFormacoes() {
             return true;
         }
 
         @Override
-        public boolean CadastrarFormacoes() {
+        public boolean podeAtualizarFormacoes() {
             return true;
         }
 
-        @Override
-        public boolean AtualizarFormacoes() {
-            return true;
-        }
-
-        @Override
-        public boolean PesquisarPorformacoes() {
-            return true;
-        }
 
         @Override
         public boolean podeCriarTopicos() {
@@ -75,48 +66,44 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean atualizarTopicos() {
+        public boolean podeAtualizarTopicos() {
             return false;
         }
 
         @Override
-        public boolean apagarTopicos() {
+        public boolean podeApagarTopicos() {
             return true; // redudante ser por exclusão lógica, será deletado de forma permanente.
         }
 
         @Override
-        public boolean fecharTopicos() {
-            return false; // Formas de fechar os tópicos, suporte e adm ou estudante marcar como melhor resposta.
+        public boolean podeFecharTopicos() {
+            return true; // Formas de fechar os tópicos, suporte e adm ou estudante marcar como melhor resposta.
             // Apenas o tópicos que são marcados como solucionados é fechado automaticamente.
         }
 
-        @Override
-        public boolean PesquisarPorTopicos() {
-            return true;
-        }
 
         @Override
-        public boolean podeCriarRespostas() {
+        public boolean podeResponderNoForum() {
             return false;
         }
 
         @Override
-        public boolean atualizarRespostas() {
+        public boolean podeAtualizarRespostas() {
             return false;
         }
 
         @Override
-        public boolean cadastrarEscola() {
+        public boolean podeEscolherMelhorResposta() {
+            return false;
+        }
+
+        @Override
+        public boolean podeCadastrarEscola() {
             return true;
         }
 
         @Override
-        public boolean AtualizarEscola() {
-            return true;
-        }
-
-        @Override
-        public boolean PesquisarPorEscolas() {
+        public boolean podeAtualizarEscola() {
             return true;
         }
     },
@@ -145,7 +132,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean renovarAssinatura() {
+        public boolean podeRenovarAssinatura() {
             return false; // Como não há pagamento, será feito de forma interna, apenas como exemplo.
         }
 
@@ -154,13 +141,9 @@ public enum TipoUsuario {
             return false;
         }
 
-        @Override
-        public boolean podePesquisarPorDadosDePerfil() {
-            return true;
-        }
 
         @Override
-        public boolean temAcessoACursos() {
+        public boolean podeAcessarCursos() {
             return true;
         }
 
@@ -175,18 +158,13 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean CadastrarFormacoes() {
+        public boolean podeCadastrarFormacoes() {
             return false;
         }
 
         @Override
-        public boolean AtualizarFormacoes() {
+        public boolean podeAtualizarFormacoes() {
             return false;
-        }
-
-        @Override
-        public boolean PesquisarPorformacoes() {
-            return true;
         }
 
         @Override
@@ -195,49 +173,45 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean atualizarTopicos() {
+        public boolean podeAtualizarTopicos() {
             return true; // apenas os seus próprios tópicos, se ainda não foram marcados como solucionados.
         }
 
         @Override
-        public boolean apagarTopicos() {
+        public boolean podeApagarTopicos() {
             return false;
         }
 
         @Override
-        public boolean fecharTopicos() {
+        public boolean podeFecharTopicos() {
             return false; // Uma vez solucionado, não deveria permitir atualização, e sim abrir outro tópico.
         }
 
-        @Override
-        public boolean PesquisarPorTopicos() {
-            return true; // assuntos
-        }
 
         @Override
-        public boolean podeCriarRespostas() {
+        public boolean podeResponderNoForum() {
             return true;
         }
 
         @Override
-        public boolean atualizarRespostas() {
+        public boolean podeAtualizarRespostas() {
             return true; // apenas as suas próprias respostas
         }
 
-
         @Override
-        public boolean cadastrarEscola() {
-            return false;
-        }
-
-        @Override
-        public boolean AtualizarEscola() {
-            return false;
-        }
-
-        @Override
-        public boolean PesquisarPorEscolas() {
+        public boolean podeEscolherMelhorResposta() {
             return true;
+        }
+
+
+        @Override
+        public boolean podeCadastrarEscola() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarEscola() {
+            return false;
         }
     },
 
@@ -265,7 +239,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean renovarAssinatura() {
+        public boolean podeRenovarAssinatura() {
             return false;
         }
 
@@ -274,13 +248,9 @@ public enum TipoUsuario {
             return false;
         }
 
-        @Override
-        public boolean podePesquisarPorDadosDePerfil() {
-            return true;
-        }
 
         @Override
-        public boolean temAcessoACursos() {
+        public boolean podeAcessarCursos() {
             return false;
         }
 
@@ -291,23 +261,19 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeAtualizarCursos() {
+            return true; // Apenas cursos que leciona
+        }
+
+        @Override
+        public boolean podeCadastrarFormacoes() {
             return false;
         }
 
         @Override
-        public boolean CadastrarFormacoes() {
+        public boolean podeAtualizarFormacoes() {
             return false;
         }
 
-        @Override
-        public boolean AtualizarFormacoes() {
-            return false;
-        }
-
-        @Override
-        public boolean PesquisarPorformacoes() {
-            return true;
-        }
 
         @Override
         public boolean podeCriarTopicos() {
@@ -315,48 +281,44 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean atualizarTopicos() {
+        public boolean podeAtualizarTopicos() {
             return false;
         }
 
         @Override
-        public boolean apagarTopicos() {
+        public boolean podeApagarTopicos() {
             return false;
         }
 
         @Override
-        public boolean fecharTopicos() {
+        public boolean podeFecharTopicos() {
             return false;
         }
 
+
         @Override
-        public boolean PesquisarPorTopicos() {
+        public boolean podeResponderNoForum() {
             return true;
         }
 
         @Override
-        public boolean podeCriarRespostas() {
-            return true;
-        }
-
-        @Override
-        public boolean atualizarRespostas() {
+        public boolean podeAtualizarRespostas() {
             return true; // As próprias respostas
         }
 
         @Override
-        public boolean cadastrarEscola() {
+        public boolean podeEscolherMelhorResposta() {
             return false;
         }
 
         @Override
-        public boolean AtualizarEscola() {
+        public boolean podeCadastrarEscola() {
             return false;
         }
 
         @Override
-        public boolean PesquisarPorEscolas() {
-            return true;
+        public boolean podeAtualizarEscola() {
+            return false;
         }
     },
 
@@ -370,7 +332,7 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeAtualizarDadosDoUsuario() {
-            return false;
+            return true;
         }
 
         @Override
@@ -380,11 +342,11 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeDesbloquearUsuarios() {
-            return false;
+            return true;
         }
 
         @Override
-        public boolean renovarAssinatura() {
+        public boolean podeRenovarAssinatura() {
             return false;
         }
 
@@ -394,12 +356,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podePesquisarPorDadosDePerfil() {
-            return true;
-        }
-
-        @Override
-        public boolean temAcessoACursos() {
+        public boolean podeAcessarCursos() {
             return false;
         }
 
@@ -414,18 +371,13 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean CadastrarFormacoes() {
+        public boolean podeCadastrarFormacoes() {
             return false;
         }
 
         @Override
-        public boolean AtualizarFormacoes() {
+        public boolean podeAtualizarFormacoes() {
             return false;
-        }
-
-        @Override
-        public boolean PesquisarPorformacoes() {
-            return true;
         }
 
         @Override
@@ -434,48 +386,43 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean atualizarTopicos() {
+        public boolean podeAtualizarTopicos() {
             return false;
         }
 
         @Override
-        public boolean apagarTopicos() {
+        public boolean podeApagarTopicos() {
             return false;
         }
 
         @Override
-        public boolean fecharTopicos() {
+        public boolean podeFecharTopicos() {
             return true;
         }
 
         @Override
-        public boolean PesquisarPorTopicos() {
+        public boolean podeResponderNoForum() {
             return true;
         }
 
         @Override
-        public boolean podeCriarRespostas() {
-            return true;
-        }
-
-        @Override
-        public boolean atualizarRespostas() {
+        public boolean podeAtualizarRespostas() {
             return true; // As próprias respostas
         }
 
         @Override
-        public boolean cadastrarEscola() {
+        public boolean podeEscolherMelhorResposta() {
             return false;
         }
 
         @Override
-        public boolean AtualizarEscola() {
+        public boolean podeCadastrarEscola() {
             return false;
         }
 
         @Override
-        public boolean PesquisarPorEscolas() {
-            return true;
+        public boolean podeAtualizarEscola() {
+            return false;
         }
     };
 
@@ -485,30 +432,31 @@ public enum TipoUsuario {
     public abstract boolean podeAtualizarDadosDoUsuario(); // o próprio usuário
     public abstract boolean podeDeletarUsuarios();// professores e suporte --> exclusão lógica
     public abstract boolean podeDesbloquearUsuarios(); // adm e suporte
-    public abstract boolean renovarAssinatura(); // Apenas exemplo, era para ser feito por meio de pagamento
+    public abstract boolean podeRenovarAssinatura(); // Apenas exemplo, era para ser feito por meio de pagamento
     public abstract boolean podePesquisarPorDadosDeUsuarios();
 
-    public abstract boolean podePesquisarPorDadosDePerfil();
 
-    public abstract boolean temAcessoACursos();
+    public abstract boolean podeAcessarCursos();
     public abstract boolean podeCadastrarCursos();
     public abstract boolean podeAtualizarCursos();
 
-    public abstract boolean CadastrarFormacoes();
-    public abstract boolean AtualizarFormacoes();
-    public abstract boolean PesquisarPorformacoes();
+
+    public abstract boolean podeCadastrarFormacoes();
+    public abstract boolean podeAtualizarFormacoes();
+
 
     public abstract boolean podeCriarTopicos();
-    public abstract boolean atualizarTopicos();
-    public abstract boolean apagarTopicos();
-    public abstract boolean fecharTopicos();
-    public abstract boolean PesquisarPorTopicos();
+    public abstract boolean podeAtualizarTopicos();
+    public abstract boolean podeApagarTopicos();
+    public abstract boolean podeFecharTopicos();
 
-    public abstract boolean podeCriarRespostas();
-    public abstract boolean atualizarRespostas();
 
-    public abstract boolean cadastrarEscola();
-    public abstract boolean AtualizarEscola();
-    public abstract boolean PesquisarPorEscolas();
+    public abstract boolean podeResponderNoForum();
+    public abstract boolean podeAtualizarRespostas();
+    public abstract boolean podeEscolherMelhorResposta();
+
+
+    public abstract boolean podeCadastrarEscola();
+    public abstract boolean podeAtualizarEscola();
 }
 

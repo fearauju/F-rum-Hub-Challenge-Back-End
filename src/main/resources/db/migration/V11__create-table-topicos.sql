@@ -4,7 +4,7 @@ CREATE TABLE topicos(
     titulo VARCHAR(100) UNIQUE NOT NULL,
     mensagem VARCHAR(255) UNIQUE NOT NULL,
     data_criacao DATETIME NOT NULL,
-    resolvido TINYINT DEFAULT 1,
+    resolvido TINYINT DEFAULT 0,
     curso_id BIGINT NOT NULL,
     usuario_id BIGINT NOT NULL,
 

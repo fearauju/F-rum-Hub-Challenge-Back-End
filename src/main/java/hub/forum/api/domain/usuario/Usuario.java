@@ -3,6 +3,7 @@ package hub.forum.api.domain.usuario;
 import hub.forum.api.domain.pefil.Perfil;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,7 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "tipo_usuario", discriminatorType = DiscriminatorType.STRING)
+@Slf4j
 public abstract class Usuario implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,11 @@ public abstract class Usuario implements UserDetails {
     private String login; // será o E-mail: do usuario e deve ser único
     private String senha; // deve ser em hash --> BCrypt
     private LocalDateTime ultimoLogin;
+    @Column(name = "tentativas_login")
+    private Integer tentativasLogin = 0;
+
+    @Column(name = "conta_bloqueada")
+    private boolean contaBloqueada = false;
 
     @Transient
     public abstract TipoUsuario obterTipoUsuario();
@@ -39,7 +46,13 @@ public abstract class Usuario implements UserDetails {
     //métodos da interface
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+        String role = "ROLE_" + obterTipoUsuario().name();
+        log.debug("Gerando authorities para usuário {} ({}): {}",
+                this.getLogin(),
+                this.getId(),
+                role);
+        return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override
@@ -59,8 +72,8 @@ public abstract class Usuario implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
-    } //administrador pode desbloquear resetando as falhas de ‘login’ para zero
+        return !contaBloqueada;
+    } //administrador ou suporte pode desbloquear resetando as falhas de ‘login’ para zero
 
     @Override
     public boolean isCredentialsNonExpired() {
@@ -70,5 +83,17 @@ public abstract class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void incrementarTentativasLogin() {
+        this.tentativasLogin++;
+        if (this.tentativasLogin >= 6) {
+            this.contaBloqueada = true;
+        }
+    }
+
+    public void resetarTentativasLogin() {
+        this.tentativasLogin = 0;
+        this.contaBloqueada = false;
     }
 }

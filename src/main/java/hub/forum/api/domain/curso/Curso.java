@@ -2,7 +2,7 @@ package hub.forum.api.domain.curso;
 
 import hub.forum.api.domain.topico.Topico;
 import hub.forum.api.domain.formacao.Formacao;
-import hub.forum.api.domain.usuario.Matricula;
+import hub.forum.api.domain.matricula.Matricula;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -39,7 +39,12 @@ public class Curso {
 
     public Curso(@Valid DadoscadastroCurso dados, Formacao formacao) {
         this.curso = dados.curso();
-        this.duracao = Duration.parse("PT" + dados.duracao().replace(":","H") + "M"); // Transformando duração em horas;
+        this.duracao = Duration.parse("PT" + dados.duracao().replace(":","H") + "M");
         this.formacao = formacao;
+    }
+
+    public void atualizarDadosCurso(DadosAtualizacaoCurso dados){
+        this.curso = dados.nomeCurso();
+        this.duracao = Duration.parse("PT" + dados.duracao().replace(":","H") + "M");
     }
 }

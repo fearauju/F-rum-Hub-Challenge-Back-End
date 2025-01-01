@@ -1,6 +1,7 @@
-package hub.forum.api.domain.usuario;
+package hub.forum.api.domain.matricula;
 
 import hub.forum.api.domain.curso.Curso;
+import hub.forum.api.domain.usuario.Estudante;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.PastOrPresent;

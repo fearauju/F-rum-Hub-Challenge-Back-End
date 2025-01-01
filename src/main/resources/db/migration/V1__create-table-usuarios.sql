@@ -5,6 +5,8 @@ CREATE TABLE usuarios(
     senha VARCHAR(255) NOT NULL,
     tipo_usuario VARCHAR(50) NOT NULL,
     ultimo_login DATETIME DEFAULT NULL,
+    tentativas_login INT DEFAULT 0,
+    conta_bloqueada BOOLEAN DEFAULT FALSE,
 
     PRIMARY KEY(id)
 );

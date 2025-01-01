@@ -11,7 +11,12 @@ import java.util.List;
 
 public record DadosCadastroFormacao(
 
+        @NotNull(message = "O id do usuário é obrigatório")
+        @Pattern(regexp = "^[\\d0-9]")
+        Long usuario_id,
+
         @NotNull(message = "O id da escola é obrigatório")
+        @Pattern(regexp = "^[\\d0-9]")
         Long escola_id,
 
         @NotBlank(message = "O nome da formação é obrigatório")
@@ -20,12 +25,12 @@ public record DadosCadastroFormacao(
                 )
         String formacao,
 
-        @NotNull(message = "A área de formação é obrigatória")
+        @NotNull(message = "A área de formação é obrigatória e deve ser escrita com todas as letras maiúsculas")
         AreaFormacao areaFormacao,
 
         @NotBlank(message = "A descrição da formação é obrigatória")
         @Pattern(
-                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9_.,:()\\-\\s]+$", message = "O nome deve conter apenas letras, numeros, espaços e underline"
+                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9_.,:()\\-\\s]+$", message = "A descrição deve conter apenas letras, numeros, espaços e underline"
         )
         String descricao,
 

@@ -1,42 +1,58 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.escola.EscolaRepository;
-import hub.forum.api.domain.formacao.DadosCadastroFormacao;
-import hub.forum.api.domain.formacao.DadosDetalhamentoFormacao;
-import hub.forum.api.domain.formacao.Formacao;
-import hub.forum.api.domain.formacao.FormacaoRepository;
-import jakarta.transaction.Transactional;
+import hub.forum.api.domain.formacao.*;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarFormacao;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarFormacao;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/formacoes")
+@Slf4j
 public class FormacaoController {
 
-    @Autowired
-    private FormacaoRepository formacaoRepository;
+   @Autowired
+   private FormacaoService service;
 
-    @Autowired
-    private EscolaRepository escolaRepository;
+    @PostMapping()
+    @AutorizacaoCadastrarFormacao
+    public ResponseEntity<DadosDetalhamentoFormacao> cadastrar(
+            @RequestBody @Valid DadosCadastroFormacao dados,
+            UriComponentsBuilder uriBuilder) {
 
-    @PostMapping
-    @Transactional
-    public ResponseEntity<?>cadastrar(@RequestBody @Valid DadosCadastroFormacao dados, UriComponentsBuilder uriComponentsBuilder){
+        log.debug("Cadastrando nova formação");
+        var formacao = service.cadastrarFormacao(dados);
 
-        var escola = escolaRepository.getReferenceById(dados.escola_id());
-
-        var formacao = new Formacao(dados,escola);
-        formacaoRepository.save(formacao);
-        var uri = uriComponentsBuilder.path("/formacoes/{id}").buildAndExpand(formacao.getId()).toUri();
+        var uri = uriBuilder.path("/formacoes/{id}")
+                .buildAndExpand(formacao.getId())
+                .toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoFormacao(formacao));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DadosListagemFormacao>> listar(
+            @Valid DadosListagemFormacao dados,
+            @PageableDefault(size = 10, sort = {"formacao"}) Pageable paginacao) {
+
+        var formacoes = service.listarFormacao(dados, paginacao);
+        return ResponseEntity.ok(formacoes);
+    }
+
+    @PutMapping("{formacaoID}")
+    @AutorizacaoAtualizarFormacao
+    public ResponseEntity<DadosDetalhamentoFormacao> atualizar(
+            @RequestBody @Valid DadosAtualizacaoFormacao dados, @PathVariable Long formacaoID) {
+
+        log.debug("Atualizando formação com ID: {}", formacaoID);
+        var formacao = service.atualizarFormacao(dados, formacaoID);
+        return ResponseEntity.ok(formacao);
     }
 }

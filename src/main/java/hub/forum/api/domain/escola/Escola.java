@@ -24,7 +24,15 @@ public class Escola {
     @OneToMany(mappedBy = "escola", cascade = CascadeType.ALL)
     private List<Formacao> formacao;
 
-    public Escola( String nomeEscola) {
-        this.nomeEscola = nomeEscola;
+    public void cadastrarEscola(DadosCadastroEscola dados) {
+
+        this.nomeEscola = dados.nomeEscola();
+    }
+
+    public void atualizarInformacoes(DadosAtualizacaoEscola dados) {
+
+        if(dados.nomeEscola() != null){
+            this.nomeEscola = dados.nomeEscola();
+        }
     }
 }

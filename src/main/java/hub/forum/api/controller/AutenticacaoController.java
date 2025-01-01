@@ -9,7 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -21,6 +27,19 @@ public class AutenticacaoController {
 
     @Autowired
     private TokenService tokenService;
+
+    @GetMapping("/check-auth")
+    public ResponseEntity<?> whoAmI(@AuthenticationPrincipal Usuario usuario) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(Map.of(
+                "usuario", usuario.getLogin(),
+                "id", usuario.getId(),
+                "tipo", usuario.obterTipoUsuario(),
+                "authorities", auth.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList())
+        ));
+    }
 
     @PostMapping
     public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados)  {

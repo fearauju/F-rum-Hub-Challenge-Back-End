@@ -1,6 +1,8 @@
 package hub.forum.api.infra.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,11 +17,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestControllerAdvice
@@ -63,6 +65,30 @@ public class TratadorDeErros {
         }
     }
 
+
+    @Data
+    @AllArgsConstructor
+    public static class ErrorResponse {
+        private int status;
+        private String message;
+        private LocalDateTime timestamp;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        log.error("Acesso negado: ", ex);
+
+        var errorResponse = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "Acesso negado. Você não tem permissão para realizar esta operação.",
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> tratarErroGenerico(Exception ex) {
         log.error("Erro não esperado: ", ex);
@@ -103,7 +129,7 @@ public class TratadorDeErros {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<String> tratarErroNotFound(ResponseStatusException ex){
-        return ResponseEntity.status(ex.getStatusCode()).body("Erro: " + ex.getReason());
+        return ResponseEntity.status(ex.getStatusCode()).body(STR."Erro: \{ex.getReason()}");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -120,9 +146,5 @@ public class TratadorDeErros {
     public ResponseEntity<String> tratarErroAuthentication() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação");
     }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> tratarErroAcessoNegado() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado");
-    }
 }
+

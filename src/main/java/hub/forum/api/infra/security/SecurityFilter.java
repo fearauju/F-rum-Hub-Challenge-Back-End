@@ -35,7 +35,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             try {
                 log.debug("Token encontrado, iniciando validação");
                 var subject = tokenService.getSubject(tokenJWT);
-                log.debug("Token válido para o usuário: {}", subject);
 
                 var usuario = repository.findByLogin(subject)
                         .orElseThrow(() -> {
@@ -43,12 +42,18 @@ public class SecurityFilter extends OncePerRequestFilter {
                             return new UsernameNotFoundException("Usuário não encontrado");
                         });
 
+                log.debug("Usuário encontrado: {}", usuario.getLogin());
+                log.debug("Tipo de usuário: {}", usuario.obterTipoUsuario());
+                log.debug("Authorities: {}", usuario.getAuthorities());
+
                 var authentication = new UsernamePasswordAuthenticationToken(
                         usuario,
                         null,
                         usuario.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Autenticação realizada com sucesso");
+
+                log.debug("Autenticação realizada com sucesso. Authorities definidas: {}",
+                        authentication.getAuthorities());
             } catch (Exception e) {
                 log.error("Erro ao processar token: ", e);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

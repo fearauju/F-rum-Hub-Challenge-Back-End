@@ -4,7 +4,6 @@ import hub.forum.api.domain.curso.Curso;
 import hub.forum.api.domain.escola.Escola;
 import hub.forum.api.domain.usuario.Professor;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.*;
 
 import java.time.Duration;
@@ -33,7 +32,7 @@ public class Formacao {
     private AreaFormacao areaFormacao;
 
     @ManyToOne
-    @JoinColumn(name = "escola_id")
+    @JoinColumn(name = "escolaID")
     private Escola escola;
 
     @OneToMany(mappedBy = "formacao", cascade = CascadeType.ALL)
@@ -43,8 +42,9 @@ public class Formacao {
     @JoinColumn(name = "professor_id")
     private Professor professor;
 
-    public Formacao(@Valid DadosCadastroFormacao dados, Escola escola) {
+    public void cadastrarFormacao(DadosCadastroFormacao dados, Escola escola) {
 
+        //será alterado posteriormente
         this.escola = escola;
         this.formacao = dados.formacao();
         this.areaFormacao = AreaFormacao.valueOf(dados.areaFormacao().name());
@@ -58,5 +58,20 @@ public class Formacao {
                     return curso;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public void atualizarInformacoes(DadosAtualizacaoFormacao dados) {
+
+        if(dados.areaFormacao() != null){
+            this.areaFormacao = dados.areaFormacao();
+        }
+
+        if(dados.formacao() != null){
+            this.formacao = dados.formacao();
+        }
+
+        if(dados.descricao() != null){
+            this.descricao = dados.descricao();
+        }
     }
 }
