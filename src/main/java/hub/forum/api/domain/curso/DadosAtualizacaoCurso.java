@@ -6,19 +6,15 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadosAtualizacaoCurso(
 
-        @NotNull(message = "O id do usuário é obrigatório")
+        @NotNull(message = "O cursoID da formação é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
-        Long usuario_id, // identificar usuário
+        Long formacaoID, //identificar curso numa formação específica
 
-        @NotNull(message = "O id da formação é obrigatório")
+
+
+        @NotNull(message = "O cursoID do curso é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
-        Long formacao_id, //identificar curso numa formação específica
-
-
-
-        @NotNull(message = "O id do curso é obrigatório")
-        @Pattern(regexp = "^[\\d0-9]")
-        Long curso_id,
+        Long cursoID,
 
         @NotBlank(message = "O nome do curso é obrigatório")
         @Pattern(

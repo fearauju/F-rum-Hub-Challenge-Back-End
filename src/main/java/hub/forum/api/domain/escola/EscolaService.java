@@ -25,6 +25,10 @@ public class EscolaService {
         return new DadosDetalhamentoEscola(escola);
     }
 
+    public Page<DadosListagemEscola> listarEscolas(Pageable paginacao) {
+        return escolaRepository.findAll(paginacao).map(DadosListagemEscola::new);
+    }
+
     @Transactional
     public DadosDetalhamentoEscola atualizarDadosEscola(DadosAtualizacaoEscola dados) {
 
@@ -33,9 +37,5 @@ public class EscolaService {
 
         log.info("Escola ID {} atualizada", dados.escolaID());
         return new DadosDetalhamentoEscola(escola);
-    }
-
-    public Page<DadosListagemEscola> listarEscolas(Pageable paginacao) {
-        return escolaRepository.findAll(paginacao).map(DadosListagemEscola::new);
     }
 }

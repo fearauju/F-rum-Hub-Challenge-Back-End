@@ -4,9 +4,9 @@ import java.time.Duration;
 
 public record DadosDetalhamentoCurso(
 
-        Long formacao_id,
+        Long formacaoID,
         String formacao,
-        Long id,
+        Long cursoID,
         String curso,
         Duration duracao
 ) {

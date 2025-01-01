@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadosExclusaoUsuario(
 
-        @NotNull(message = "O id do usuário é obrigatório")
+        @NotNull(message = "O cursoID do usuário é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
         Long usuario_id,
 

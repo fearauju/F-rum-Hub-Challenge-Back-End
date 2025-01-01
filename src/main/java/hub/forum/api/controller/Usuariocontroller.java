@@ -36,7 +36,7 @@ public class Usuariocontroller {
 
         var dadosMatricula = matriculaService.atualizarMatriculaEstudante(dados);
 
-        var uri = uriComponentsBuilder.path("/usuarios/{id}").buildAndExpand(dadosMatricula.estudante_id()).toUri();
+        var uri = uriComponentsBuilder.path("/usuarios/{cursoID}").buildAndExpand(dadosMatricula.estudante_id()).toUri();
         return ResponseEntity.created(uri).body(new DadosDetalhamentoMatricula(dadosMatricula));
     }
 }

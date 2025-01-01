@@ -1,7 +1,7 @@
 package hub.forum.api.domain.formacao;
 
 public record DadosDetalhamentoFormacao(
-        Long escola_id,
+        Long escolaID,
         String formacao,
         AreaFormacao areaFormacao
 ) {

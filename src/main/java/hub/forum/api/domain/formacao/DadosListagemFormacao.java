@@ -3,7 +3,7 @@ package hub.forum.api.domain.formacao;
 public record DadosListagemFormacao(
 
         String nomeEscola,
-        Long formacao_id,
+        Long formacaoID,
         AreaFormacao areaFormacao,
         String formacao,
         String descricao

@@ -1,6 +1,5 @@
 package hub.forum.api.domain.resposta;
 
-import hub.forum.api.domain.escola.EscolaRepository;
 import hub.forum.api.domain.topico.TopicoRepository;
 import hub.forum.api.domain.usuario.UsuarioRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
@@ -25,29 +24,30 @@ public class RespostaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private EscolaRepository escolaRepository;
 
-    private  Resposta resposta = new Resposta();
+    private final Resposta resposta = new Resposta();
 
     @Transactional
-    public void salvarResposta(DadosRegistroReposta dados, Long topicoId) {
+    public DadosDetalhamentoResposta salvarResposta(DadosRegistroReposta dados, Long topicoID) {
 
-        var topico = topicoRepository.findById(topicoId)
-                .orElseThrow(() -> new ValidacaoException("Tópico não encontrado"));
+        var topico = topicoRepository.getReferenceById(topicoID);
 
         if (topico.isResolvido()) {
-            throw new ValidacaoException("Tópico já está resolvido");
+            throw new ValidacaoException("Este tópico já foi resolvido. Crie outro tópico caso tenha alguma dúvida.");
         }
 
+        var resposta = new Resposta();
         resposta.salvarResposta(dados);
+
+        log.info("Nova resposta registrada para o tópico ID: {}", topico.getId());
+
+        return new DadosDetalhamentoResposta(resposta);
     }
 
     @Transactional
-    public Resposta atualizarResposta(Long topicoID, DadosRegistroReposta dados) {
+    public DadosDetalhamentoResposta atualizarResposta(Long topicoID, DadosRegistroReposta dados) {
 
-        var usuario = usuarioRepository.findById(dados.autorID())
-                .orElseThrow(() -> new ValidacaoException("Usuário não encontrado"));
+        var usuario = usuarioRepository.getReferenceById(dados.autorID());
 
         var topico = topicoRepository.getReferenceById(topicoID);
 
@@ -57,18 +57,7 @@ public class RespostaService {
 
             resposta.atualizarResposta(dados);
 
-            return resposta;
-    }
-
-
-    @Transactional
-    public void marcandoTopicoComoResolvido(Long topicoId, Long respostaId) {
-
-         resposta = respostaRepository.findByIdAndTopicoId(respostaId, topicoId)
-                .orElseThrow(() -> new ValidacaoException("Resposta não encontrada para este tópico"));
-
-        log.info("Resposta {} marcada como solução do tópico {}", respostaId, topicoId);
-        resposta.escolherMelhorResposta();
+            return new DadosDetalhamentoResposta(resposta);
     }
 
     public Page<DadosListagemResposta> listarRespostas(Long topicoID, Pageable paginacao) {
@@ -76,10 +65,19 @@ public class RespostaService {
         return respostaRepository.findRespostasTopicoID(topicoID,paginacao).map(DadosListagemResposta::new);
     }
 
+    @Transactional
+    public void marcarMelhorResposta(Long topicoId, Long respostaId) {
 
-    //Escola
+        var resposta = respostaRepository.findByIdAndTopicoId(respostaId, topicoId)
+                .orElseThrow(() -> new ValidacaoException("Resposta não encontrada para este tópico"));
 
-    public boolean podeAtualizarEscola(Long escolaId, Long usuarioId) {
-        return escolaRepository.existsById(escolaId);
+        log.debug("Marcando resposta {} como melhor resposta do tópico {}", respostaId, topicoId);
+        resposta.escolherMelhorResposta();
+
+        log.info("Resposta marcada como solução e tópico fechado");
     }
+
+
+
+
 }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ADMINISTRADOR') and @segurancaService.podeCadastrarFormacao(#dados.escola_id, authentication.principal.id)")
+@PreAuthorize("hasRole('ADMINISTRADOR') and @segurancaService.podeCadastrarFormacao(#dados.escolaID, authentication.principal.id)")
 public @interface AutorizacaoCadastrarFormacao{}

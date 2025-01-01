@@ -30,7 +30,7 @@ public class FormacaoController {
         log.debug("Cadastrando nova formação");
         var formacao = service.cadastrarFormacao(dados);
 
-        var uri = uriBuilder.path("/formacoes/{id}")
+        var uri = uriBuilder.path("/formacoes/{cursoID}")
                 .buildAndExpand(formacao.getId())
                 .toUri();
 
@@ -39,10 +39,9 @@ public class FormacaoController {
 
     @GetMapping
     public ResponseEntity<Page<DadosListagemFormacao>> listar(
-            @Valid DadosListagemFormacao dados,
-            @PageableDefault(size = 10, sort = {"formacao"}) Pageable paginacao) {
+            @PageableDefault(sort = {"formacao"}) Pageable paginacao) {
 
-        var formacoes = service.listarFormacao(dados, paginacao);
+        var formacoes = service.listarFormacao(paginacao);
         return ResponseEntity.ok(formacoes);
     }
 

@@ -31,7 +31,7 @@ public class TopicoController {
         log.debug("Validando os dados antes de criar o objeto tópico");
         var topico = topicoService.criarTopico(dados);
 
-        var uri = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.topicoID()).toUri();
+        var uri = uriComponentsBuilder.path("/topicos/{cursoID}").buildAndExpand(topico.topicoID()).toUri();
         return ResponseEntity.created(uri).body(topico);
     }
 

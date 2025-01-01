@@ -30,7 +30,7 @@ public class Matricula {
     private Estudante estudante;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "curso_id") // Chave estrangeira para Curso
+    @JoinColumn(name = "cursoID") // Chave estrangeira para Curso
     private Curso curso;
 
     @Column(nullable = false)

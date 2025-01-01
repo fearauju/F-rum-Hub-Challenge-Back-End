@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 
 public record DadosCadastroTopico(
 
-        @NotNull(message = "O id do usuário é obrigatório")
+        @NotNull(message = "O cursoID do usuário é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
         Long usuarioID,
 
@@ -14,7 +14,7 @@ public record DadosCadastroTopico(
         )
         String formacao,
 
-        @NotNull(message = "O id do usuário é obrigatório")
+        @NotNull(message = "O cursoID do usuário é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
         Long cursoID,
 

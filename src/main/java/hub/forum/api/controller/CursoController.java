@@ -1,7 +1,7 @@
 package hub.forum.api.controller;
 
 import hub.forum.api.domain.curso.*;
-import hub.forum.api.infra.security.anotacoes.PodeAtualizarCurso;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarCurso;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class CursoController {
 
         var curso = service.cadastrarCurso(dados);
 
-        var uri = uriComponentsBuilder.path("/cursos/{id}").buildAndExpand(curso.getId()).toUri();
+        var uri = uriComponentsBuilder.path("/cursos/{cursoID}").buildAndExpand(curso.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoCurso(curso));
     }
@@ -36,7 +36,7 @@ public class CursoController {
     @GetMapping("/formacao/{formacaoId}")
     public ResponseEntity<Page<DadosListagemCurso>> listarPorFormacao(
             @PathVariable Long formacaoId,
-            @PageableDefault(size = 10, sort = {"curso"}) Pageable paginacao) {
+            @PageableDefault(sort = {"curso"}) Pageable paginacao) {
 
         var cursos = service.listarPorFormacao(paginacao, formacaoId);
         return ResponseEntity.ok(cursos);
@@ -44,7 +44,7 @@ public class CursoController {
 
 
     @PutMapping
-    @PodeAtualizarCurso
+    @AutorizacaoAtualizarCurso
     public ResponseEntity<DadosDetalhamentoCurso> atualizarCurso(@Valid DadosAtualizacaoCurso dados){
 
         var curso = service.atualizarCurso(dados);

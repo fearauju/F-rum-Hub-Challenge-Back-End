@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ADMINISTRADOR') and @segurancaService.podeAtualizarFormacao(#dados.id_formacao, authentication.principal.id)")
+@PreAuthorize("hasRole('ADMINISTRADOR') and @segurancaService.podeAtualizarFormacao(#dados.formacaoID, authentication.principal.id)")
 public @interface AutorizacaoAtualizarFormacao {}

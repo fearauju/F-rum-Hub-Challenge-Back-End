@@ -27,7 +27,7 @@ public class Curso {
     private Double avaliacao;
 
     @ManyToOne
-    @JoinColumn(name = "formacao_id")
+    @JoinColumn(name = "formacaoID")
     private Formacao formacao;
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)

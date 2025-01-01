@@ -30,7 +30,7 @@ public class EscolaController {
         log.debug("Cadastrando nova escola");
         var escola = service.cadastrarEscola(dados);
 
-        var uri = uriBuilder.path("/escolas/{id}")
+        var uri = uriBuilder.path("/escolas/{cursoID}")
                 .buildAndExpand(escola.escolaID())
                 .toUri();
 
@@ -39,7 +39,7 @@ public class EscolaController {
 
     @GetMapping
     public ResponseEntity<Page<DadosListagemEscola>> listar(
-            @PageableDefault(size = 10, sort = {"nomeEscola"}) Pageable paginacao) {
+            @PageableDefault(sort = {"nomeEscola"}) Pageable paginacao) {
         var page = service.listarEscolas(paginacao);
         return ResponseEntity.ok(page);
     }

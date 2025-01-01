@@ -34,7 +34,7 @@ public class Topico {
     private boolean resolvido;
 
     @ManyToOne
-    @JoinColumn(name = "curso_id")
+    @JoinColumn(name = "cursoID")
     private Curso curso;
 
     @ManyToOne(optional = false) // Cada tópico tem um único autor
@@ -62,5 +62,9 @@ public class Topico {
         if(dados.mensagem() != null){
             this.mensagem = dados.mensagem();
         }
+    }
+
+    public void marcarComoResolvido() {
+        this.resolvido = true;
     }
 }

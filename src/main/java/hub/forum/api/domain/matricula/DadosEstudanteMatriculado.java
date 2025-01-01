@@ -5,11 +5,11 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadosEstudanteMatriculado(
 
-        @NotNull(message = "Informe id do usuário que fará a atualização da matricula")
+        @NotNull(message = "Informe cursoID do usuário que fará a atualização da matricula")
         @Pattern(regexp = "^[\\d0-9]")
         Long usuario_Id,
 
-        @NotNull(message = "O id do estudante é obrigatório")
+        @NotNull(message = "O cursoID do estudante é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
         Long estudante_Id
 ) {

@@ -1,9 +1,6 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.resposta.DadosListagemResposta;
-import hub.forum.api.domain.resposta.DadosRegistroReposta;
-import hub.forum.api.domain.resposta.Resposta;
-import hub.forum.api.domain.resposta.RespostaService;
+import hub.forum.api.domain.resposta.*;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarResposta;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoEscolherResolvido;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoResponderTopicos;
@@ -24,40 +21,41 @@ public class RespostaController {
     @Autowired
     private RespostaService service;
 
-    @PostMapping("{topicoID}") //criar controller de respostas
-    @AutorizacaoResponderTopicos
-    public ResponseEntity<?> salvarResposta(@PathVariable Long topicoID,
-                                             @RequestBody @Valid DadosRegistroReposta dados) {
 
-        service.salvarResposta(dados, topicoID);
-        return ResponseEntity.noContent().build();
+    @PostMapping("{topicoID}/respostas")
+    @AutorizacaoResponderTopicos
+    public ResponseEntity<DadosDetalhamentoResposta> salvarResposta(@RequestBody @Valid DadosRegistroReposta dados,
+                                                                    @PathVariable Long topicoID) {
+       var resposta = service.salvarResposta(dados, topicoID);
+       return ResponseEntity.ok(resposta);
     }
 
-    @PutMapping("{topicoID}")
+
+    @PutMapping("{topicoID}/respostas")
     @AutorizacaoAtualizarResposta
-    public ResponseEntity<Resposta> atualizarResposta(@PathVariable Long topicoID,
+    public ResponseEntity<DadosDetalhamentoResposta> atualizarResposta(@PathVariable Long topicoID,
                                                       @RequestBody @Valid DadosRegistroReposta dados) {
 
        var respostaAtualizada = service.atualizarResposta(topicoID,dados);
-        return ResponseEntity.ok(respostaAtualizada);
+       return ResponseEntity.ok(respostaAtualizada);
     }
 
+
     @GetMapping("/{topicoID}/respostas")
-    public ResponseEntity<Page<DadosListagemResposta>> listarRespostas(@PageableDefault(size = 10,sort = {"dataCriacao"})
+    public ResponseEntity<Page<DadosListagemResposta>> listarRespostas(@PageableDefault(sort = {"dataCriacao"})
                                                                        Pageable paginacao, @PathVariable Long topicoID){
 
         var respostasTopico = service.listarRespostas(topicoID,paginacao);
         return ResponseEntity.ok(respostasTopico);
     }
 
+
     @PutMapping("/{topicoID}/respostas/{respostaID}")
     @AutorizacaoEscolherResolvido
-    public ResponseEntity<?> marcarResolvido(
-            @PathVariable Long topicoID,
-            @PathVariable Long respostaID) {
+    public ResponseEntity<?> marcarSolucao(@PathVariable Long topicoID, @PathVariable Long respostaID) {
 
         log.debug("Marcando resposta {} como solução do tópico {}", respostaID, topicoID);
-        service.marcandoTopicoComoResolvido(topicoID, respostaID);
+        service.marcarMelhorResposta(topicoID, respostaID);
         return ResponseEntity.noContent().build();
     }
 }

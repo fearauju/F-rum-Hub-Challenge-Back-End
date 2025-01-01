@@ -7,9 +7,6 @@ import jakarta.validation.constraints.Size;
 
 public record DadosAtualizacaoTopico(
 
-        @NotNull(message = "O id do usuário é obriatório")
-        Long usuarioID,
-
         @NotBlank(message = "O título é obrigatório")
         @Pattern(regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9_.,:()\\-\\s]+$", message = "O nome deve conter apenas letras, numeros, espaços e underline")
         @Size(max = 100)

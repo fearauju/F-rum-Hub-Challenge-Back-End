@@ -28,15 +28,6 @@ public class TopicoService {
     @Transactional
     public DadosDetalhamentoTopico criarTopico(@Valid DadosCadastroTopico dados) {
 
-        var usuario = usuarioRepository.getReferenceById(dados.usuarioID());
-
-        log.debug("Verificando usuário");
-        if(!usuario.obterTipoUsuario().podeAtualizarTopicos()){
-            log.warn("Usuário {} não tem permissões para criar tópico", usuario.obterTipoUsuario());
-            throw new ValidacaoException("Somente estudantes podem criar tópicos");
-        }
-
-
         var curso = cursoRepository.findById(dados.cursoID())
                 .orElseThrow(() -> new ValidacaoException("Curso não encontrado"));
 

@@ -48,6 +48,7 @@ public class Resposta {
 
     public void escolherMelhorResposta() {
         this.melhor_resposta = true;
+        topico.marcarComoResolvido();
     }
 
 

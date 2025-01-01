@@ -11,13 +11,9 @@ import java.util.List;
 
 public record DadosCadastroFormacao(
 
-        @NotNull(message = "O id do usuário é obrigatório")
+        @NotNull(message = "O cursoID da escola é obrigatório")
         @Pattern(regexp = "^[\\d0-9]")
-        Long usuario_id,
-
-        @NotNull(message = "O id da escola é obrigatório")
-        @Pattern(regexp = "^[\\d0-9]")
-        Long escola_id,
+        Long escolaID,
 
         @NotBlank(message = "O nome da formação é obrigatório")
         @Pattern(

@@ -13,14 +13,14 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     @Query("SELECT u FROM Usuario u WHERE u.login = :login")
     Optional<Usuario> findByLogin(String login);
 
-    @Query("SELECT u FROM Usuario u WHERE u.id = :id AND TYPE(u) IN (Professor, Suporte)")
+    @Query("SELECT u FROM Usuario u WHERE u.cursoID = :cursoID AND TYPE(u) IN (Professor, Suporte)")
     Optional<Usuario> findInativableUserById(@Param("id") Long id);
 
     @Modifying
     @Query("""
         UPDATE Usuario u
         SET u.ativo = :ativo
-        WHERE u.id = :id
+        WHERE u.cursoID = :cursoID
         AND TYPE(u) IN (Professor, Suporte)
         """)
     void updateStatusAtivo(@Param("id") Long id, @Param("ativo") boolean ativo);

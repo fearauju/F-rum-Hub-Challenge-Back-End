@@ -40,6 +40,25 @@ public class SegurancaService {
     }
 
 
+    //Escola
+
+    public boolean podeAtualizarEscola(Long escolaId) {
+        return escolaRepository.existsById(escolaId);
+    }
+
+    //Formação
+
+    public boolean podeCadastrarFormacao(Long escolaId) {
+        return escolaRepository.existsById(escolaId);
+    }
+
+    public boolean podeAtualizarFormacao(Long formacaoId) {
+        return formacaoRepository.existsById(formacaoId);
+    }
+
+
+    // curso
+
     public boolean podeAtualizarCurso(Long cursoID, Long professorID) {
         return cursoRepository.existsByIdAndProfessorId(cursoID, professorID);
     }
@@ -47,7 +66,7 @@ public class SegurancaService {
 
     //Topico
 
-    public boolean podeCriarTopico(Long usuarioID, String titulo, String mensagem) {
+    public boolean podeCriarTopico(String titulo, String mensagem) {
 
         if (topicoRepository.existsByTituloOrMensagem(titulo,mensagem)) {
 
@@ -63,19 +82,11 @@ public class SegurancaService {
                 .isPresent();
     }
 
-    public boolean podeApagarTopico(Long usuariID){
-
-        var usuario = usuarioRepository.getReferenceById(usuariID);
-        return usuario.obterTipoUsuario().podeApagarTopicos();
-    }
-
-
 
     //Resposta
-    public boolean podeResponderNoForum(Long usuarioID){
-
-        var usuario = usuarioRepository.getReferenceById(usuarioID);
-        return usuario.obterTipoUsuario().podeResponderNoForum();
+    public boolean podeResponderNoForum(Long topicoID){
+// Verifica se o tópico está aberto (não resolvido)
+        return !topicoRepository.isTopicoResolvido(topicoID);
     }
 
     public boolean podeEscolherMelhorResposta(Long topicoID, Long usuarioID){
@@ -88,16 +99,6 @@ public class SegurancaService {
 
         return topicoRepository.findByIdAndAutorId(topicoID, usuarioID)
                 .isPresent();
-    }
-
-    public boolean podeAtualizarFormacao(Long formacaoId) {
-        return formacaoRepository.existsById(formacaoId);
-    }
-
-
-    //Escola
-    public boolean podeCadastrarFormacao(Long escolaId) {
-        return escolaRepository.existsById(escolaId);
     }
 
 }

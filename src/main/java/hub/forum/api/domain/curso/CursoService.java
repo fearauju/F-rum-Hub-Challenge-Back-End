@@ -11,9 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @Slf4j
 public class CursoService {
@@ -31,10 +28,8 @@ public class CursoService {
     @Transactional
     public Curso cadastrarCurso(DadoscadastroCurso dados) {
 
-        var usuario = usuarioRepository.getReferenceById(dados.usuario_id());
-
         log.debug("Buscando a formação que contêm este curso");
-        var formacao = formacaoRepository.getReferenceById(dados.formacao_id());
+        var formacao = formacaoRepository.getReferenceById(dados.formacaoID());
 
         var curso = new Curso(dados, formacao);
 
@@ -48,17 +43,17 @@ public class CursoService {
 
             // Validações iniciais
             log.debug("Verificando se a formação existe");
-            if (!formacaoRepository.existsById(dados.formacao_id())) {
+            if (!formacaoRepository.existsById(dados.formacaoID())) {
                 throw new ValidacaoException("Formação não encontrada");
             }
 
             log.debug("Verificando se o curso existe dentro da formação informada");
-            if (!cursoRepository.existsByIdINFormacao(dados.formacao_id(), dados.curso_id())) {
+            if (!cursoRepository.existsByIdINFormacao(dados.formacaoID(), dados.cursoID())) {
                 throw new ValidacaoException("Curso não encontrado na formação informada");
             }
 
             // Carrega o curso existente do banco
-            var curso = cursoRepository.getReferenceById(dados.curso_id());
+            var curso = cursoRepository.getReferenceById(dados.cursoID());
 
             // Atualiza com os novos dados
             curso.atualizarDadosCurso(dados);
@@ -68,7 +63,7 @@ public class CursoService {
 
             //Como está numa transação a JPA monitora qualquer alteração
             // após os dados serem carregados do banco de dados
-            // e faz o update automátco com as mudanças.
+            // e faz o update automático com as mudanças.
 
           // O fluxo correto é:
 

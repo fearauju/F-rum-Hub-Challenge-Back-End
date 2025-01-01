@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record DadosRegistroReposta(
 
-        @NotNull(message = "Informe o id do autor")
+        @NotNull(message = "Informe o cursoID do autor")
         Long autorID,
 
         @NotBlank(message = "O conteúdo é obrigatório, conte-nos qual a sua dúvida")

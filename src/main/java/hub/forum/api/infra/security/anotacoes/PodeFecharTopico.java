@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPORTE') or @segurancaService.isAutorTopico(#id, authentication.principal.id)")
+@PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPORTE') or @segurancaService.isAutorTopico(#cursoID, authentication.principal.id)")
 public @interface PodeFecharTopico {}
