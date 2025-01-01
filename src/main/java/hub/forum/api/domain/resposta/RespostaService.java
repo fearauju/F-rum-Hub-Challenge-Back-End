@@ -79,7 +79,7 @@ public class RespostaService {
 
     //Escola
 
-    public boolean podeAtualizarEscola(Long escolaId, Long usuarioId) {
+    public boolean podeAtualizarEscola(Long escolaId) {
         return escolaRepository.existsById(escolaId);
     }
 }
