@@ -5,11 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,11 +18,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-
-
 import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -75,7 +76,7 @@ public class TratadorDeErros {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> tratarErroAcessoNegado(AccessDeniedException ex) {
         log.error("Acesso negado: ", ex);
 
         var errorResponse = new ErrorResponse(
@@ -127,9 +128,10 @@ public class TratadorDeErros {
                 .body(ex.getMessage());
     }
 
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<String> tratarErroNotFound(ResponseStatusException ex){
-        return ResponseEntity.status(ex.getStatusCode()).body(STR."Erro: \{ex.getReason()}");
+        return ResponseEntity.status(ex.getStatusCode()).body("Erro: ex.getReason()");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -145,6 +147,33 @@ public class TratadorDeErros {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<String> tratarErroAuthentication() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação");
+    }
+
+    @ExceptionHandler(ConcurrentModificationException.class)
+    public ResponseEntity<String> handleConcurrentModification(ConcurrentModificationException ex) {
+        log.error("Erro de concorrência: ", ex);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Outro usuário já atualizou este recurso. Por favor, tente novamente.");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error("Erro de integridade de dados: {}", ex.getMessage());
+
+        if (ex.getMessage().contains("usuarios.login")) {
+            return "Este email já está em uso por outro usuário";
+        }
+
+        return "Erro de integridade de dados";
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<String> handleOptimisticLockingException(ObjectOptimisticLockingFailureException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Conflito de atualização. Por favor, tente novamente.");
     }
 }
 

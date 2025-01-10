@@ -15,7 +15,7 @@ public class ConverterListaDeString implements AttributeConverter<List<String>, 
     @Override
     public String convertToDatabaseColumn(List<String> attribute) {
         if (attribute == null || attribute.isEmpty()) {
-            return null;
+            return "";
         }
         return String.join(DELIMITADOR, attribute);
     }

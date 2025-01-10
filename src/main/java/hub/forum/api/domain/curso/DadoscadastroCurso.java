@@ -6,13 +6,9 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadoscadastroCurso(
 
-        @NotNull(message = "O cursoID da formação é obrigatório")
-        @Pattern(regexp = "^[\\d0-9]")
-        Long formacaoID,
-
         @NotBlank(message = "O nome do curso é obrigatório")
         @Pattern(
-                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9_.,:()\\-\\s]+$", message = "O nome deve conter apenas letras, numeros, espaços e underline"
+                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9.,:()\\-\\s]+$", message = "O nome deve conter apenas letras, numeros e espaços"
         )
         String curso,
 

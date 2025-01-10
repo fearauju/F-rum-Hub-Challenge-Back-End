@@ -1,6 +1,7 @@
 package hub.forum.api.controller;
 
 import hub.forum.api.domain.resposta.*;
+import hub.forum.api.domain.topico.DadosFechamentoTopico;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarResposta;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoEscolherResolvido;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoResponderTopicos;
@@ -31,12 +32,13 @@ public class RespostaController {
     }
 
 
-    @PutMapping("{topicoID}/respostas")
+    @PutMapping("{topicoID}/{respostaID}")
     @AutorizacaoAtualizarResposta
     public ResponseEntity<DadosDetalhamentoResposta> atualizarResposta(@PathVariable Long topicoID,
+                                                      @PathVariable Long respostaID,
                                                       @RequestBody @Valid DadosRegistroReposta dados) {
 
-       var respostaAtualizada = service.atualizarResposta(topicoID,dados);
+       var respostaAtualizada = service.atualizarResposta(topicoID,respostaID,dados);
        return ResponseEntity.ok(respostaAtualizada);
     }
 
@@ -52,10 +54,11 @@ public class RespostaController {
 
     @PutMapping("/{topicoID}/respostas/{respostaID}")
     @AutorizacaoEscolherResolvido
-    public ResponseEntity<?> marcarSolucao(@PathVariable Long topicoID, @PathVariable Long respostaID) {
+    public ResponseEntity<?> marcarSolucao(@PathVariable Long topicoID, @PathVariable Long respostaID,
+                                           @Valid DadosFechamentoTopico dados) {
 
         log.debug("Marcando resposta {} como solução do tópico {}", respostaID, topicoID);
-        service.marcarMelhorResposta(topicoID, respostaID);
+        service.marcarMelhorResposta(topicoID, respostaID, dados);
         return ResponseEntity.noContent().build();
     }
 }

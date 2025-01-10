@@ -1,7 +1,7 @@
 CREATE TABLE escolas(
 
     id BIGINT NOT NULL AUTO_INCREMENT,
-    nome_escola VARCHAR(255) NOT NULL,
+    nome_escola VARCHAR(255) UNIQUE NOT NULL,
 
     PRIMARY KEY(id)
 );

@@ -7,6 +7,7 @@ CREATE TABLE usuarios(
     ultimo_login DATETIME DEFAULT NULL,
     tentativas_login INT DEFAULT 0,
     conta_bloqueada BOOLEAN DEFAULT FALSE,
+    ativo TINYINT DEFAULT TRUE,
 
     PRIMARY KEY(id)
 );

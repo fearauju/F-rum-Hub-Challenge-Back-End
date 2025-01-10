@@ -1,8 +1,10 @@
 package hub.forum.api.domain.usuario;
 
 import hub.forum.api.domain.matricula.MatriculaService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -17,7 +20,7 @@ public class AutenticacaoService implements UserDetailsService {
 
 
     @Autowired
-    private UsuarioRepository repository;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private MatriculaService matriculaService;
@@ -26,37 +29,51 @@ public class AutenticacaoService implements UserDetailsService {
     private UsuarioService usuarioService;
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
 
-        log.debug("Tentando autenticar usuário: {}", login);
-
         try {
-            var usuario = repository.findByLogin(login)
+            var usuario = usuarioRepository.findByLogin(login)
                     .orElseThrow(() -> {
                         log.error("Usuário não encontrado: {}", login);
                         return new UsernameNotFoundException("Usuário não encontrado");
                     });
 
-            // Verificar bloqueio primeiro
+            log.debug("Usuário encontrado, verificando status...");
+
+            // Log dos estados importantes
+            log.debug("Status do usuário - Ativo: {}, Bloqueado: {}, Login: {}",
+                    usuario.isAtivo(),
+                    usuario.isAccountNonLocked(),
+                    usuario.getLogin());
+
+            if (!usuario.isAtivo()) {
+                log.warn("Usuário inativo: {}", login);
+                throw new DisabledException("Usuário inativo");
+            }
+
             if (!usuario.isAccountNonLocked()) {
-                log.warn("Tentativa de login em conta bloqueada: {}", login);
-                throw new LockedException("Conta bloqueada após múltiplas tentativas. Contate o suporte.");
+                log.warn("Conta bloqueada: {}", login);
+                throw new LockedException("Conta bloqueada após múltiplas tentativas");
             }
 
-            // Depois verificar matrícula para estudantes
-            if (usuario.obterTipoUsuario() == TipoUsuario.ESTUDANTE
-                    && matriculaService.verificarStatusMatricula(usuario.getId())) {
-                log.error("Tentativa de login com matrícula inativa: {}", login);
-                throw new DisabledException("Login não permitido. Renove sua matrícula");
+            if (usuario instanceof Estudante) {
+                boolean matriculaAtiva = matriculaService.verificarStatusMatricula(usuario.getId());
+                log.debug("Verificação de matrícula para estudante: {}", matriculaAtiva);
+
+                if (!matriculaAtiva) {
+                    throw new DisabledException("Matrícula expirada");
+                }
             }
 
-            // Se chegou aqui, registra sucesso
             usuarioService.registrarLoginSucesso(login);
-            log.debug("Usuário autenticado com sucesso: {}", login);
             return usuario;
 
-        } catch (BadCredentialsException e) {
-            usuarioService.registrarTentativaLoginFalha(login);
+        } catch (Exception e) {
+            log.error("Erro durante autenticação: {}", e.getMessage(), e);
+            if (e instanceof BadCredentialsException) {
+                usuarioService.registrarTentativaLoginFalha(login);
+            }
             throw e;
         }
     }

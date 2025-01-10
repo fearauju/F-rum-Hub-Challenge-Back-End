@@ -1,15 +1,17 @@
 package hub.forum.api.domain.curso;
 
+import hub.forum.api.domain.curso.validacao.DadosValidacaoCurso;
 import hub.forum.api.domain.formacao.FormacaoRepository;
-import hub.forum.api.domain.usuario.UsuarioRepository;
+import hub.forum.api.domain.validacao.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -19,73 +21,49 @@ public class CursoService {
     private FormacaoRepository formacaoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private CursoRepository cursoRepository;
 
     @Autowired
-    private CursoRepository cursoRepository;
+    private  List<ValidadorBase<DadosValidacaoCurso>> validadores;
 
 
     @Transactional
-    public Curso cadastrarCurso(DadoscadastroCurso dados) {
+    public DadosDetalhamentoCurso cadastrarCurso(
+            Long formacaoID, DadoscadastroCurso dados) {
 
-        log.debug("Buscando a formação que contêm este curso");
-        var formacao = formacaoRepository.getReferenceById(dados.formacaoID());
+        var formacao = formacaoRepository.findById(formacaoID)
+                .orElseThrow(() -> new ValidacaoException("Formação não encontrada"));
 
-        var curso = new Curso(dados, formacao);
+        var dadosValidacao = new DadosValidacaoCurso(
+                dados.duracao(),
+                dados.curso()
+        );
 
-        log.debug("Cadastrando curso no banco de dados");
-        return cursoRepository.save(curso);
+        validadores.forEach(v -> v.validar(dadosValidacao));
 
+        var curso = new Curso();
+        curso.cadastrarCurso(dados, formacao);
+
+        return new DadosDetalhamentoCurso(cursoRepository.save(curso));
     }
 
-        @Transactional
-        public DadosDetalhamentoCurso atualizarCurso(@Valid DadosAtualizacaoCurso dados) {
 
-            // Validações iniciais
-            log.debug("Verificando se a formação existe");
-            if (!formacaoRepository.existsById(dados.formacaoID())) {
-                throw new ValidacaoException("Formação não encontrada");
-            }
+    @Transactional
+    public DadosDetalhamentoCurso atualizarCurso(
+            Long cursoID,
+            DadosAtualizacaoCurso dados) {
 
-            log.debug("Verificando se o curso existe dentro da formação informada");
-            if (!cursoRepository.existsByIdINFormacao(dados.formacaoID(), dados.cursoID())) {
-                throw new ValidacaoException("Curso não encontrado na formação informada");
-            }
+        var curso = cursoRepository.findById(cursoID)
+                .orElseThrow(() -> new ValidacaoException("Curso não encontrado"));
 
-            // Carrega o curso existente do banco
-            var curso = cursoRepository.getReferenceById(dados.cursoID());
+        curso.atualizarDadosCurso(dados);
+        return new DadosDetalhamentoCurso(curso);
+    }
 
-            // Atualiza com os novos dados
-            curso.atualizarDadosCurso(dados);
-
-            log.debug("Retornando o objeto curso após a conversão para dados DTO");
-            return new DadosDetalhamentoCurso(curso);
-
-            //Como está numa transação a JPA monitora qualquer alteração
-            // após os dados serem carregados do banco de dados
-            // e faz o update automático com as mudanças.
-
-          // O fluxo correto é:
-
-            // - Receber dados do JSON
-
-            // - Validar permissões e regras
-
-            // - Carregar entidade do banco
-
-            // - Atualizar dados da entidade
-
-            // - Deixar o JPA fazer o update
-
-          //  Não é necessário usar save() porque o objeto carregado do banco já está sendo gerenciado pela JPA.
-        }
-
-    public Page<DadosListagemCurso> listarPorFormacao(Pageable paginacao, Long formacaoId) {
+    public Page<DadosListagemCurso> cursosPorFormacao(Pageable paginacao, Long formacaoID) {
 
         log.debug("Buscando cursos da formação informada");
-        return cursoRepository.findByFormacaoId(formacaoId, paginacao)
+        return cursoRepository.findByFormacaoId(formacaoID, paginacao)
                 .map(DadosListagemCurso::new);
-
-        //GET /cursos/formacao/1?page=0&size=10&sort=curso,asc
     }
 }

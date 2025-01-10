@@ -5,11 +5,8 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadosExclusaoUsuario(
 
-        @NotNull(message = "O cursoID do usuário é obrigatório")
-        @Pattern(regexp = "^[\\d0-9]")
-        Long usuario_id,
-
-        @NotNull(message = "Informe se o tipo do usuário cadastrado com todas as letras maiúsculas")
-        Long usuarioInativo_id
+        @NotNull(message = "Informe o id do usuário que ficará inativo")
+        @Pattern(regexp = "^\\d+$", message = "O ID deve conter apenas números")
+        Long usuarioInativoID
 ) {
 }

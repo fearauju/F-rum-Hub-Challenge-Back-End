@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ESTUDANTE') and @SegurancaService.podeCriarTopico(#dado.titulo, #dado.mensagem)")
+@PreAuthorize("hasRole('ESTUDANTE')")
 public @interface AutorizacaoCriarTopico {}

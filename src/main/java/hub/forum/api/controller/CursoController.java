@@ -2,6 +2,7 @@ package hub.forum.api.controller;
 
 import hub.forum.api.domain.curso.*;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarCurso;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarCurso;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/cursos")
+@RequestMapping("/formacoes/{formacaoId}/cursos")
 @Slf4j
 public class CursoController {
 
@@ -23,37 +23,36 @@ public class CursoController {
 
 
     @PostMapping
-    @PreAuthorize("ROLE_ADMINISTRADOR")
-    public ResponseEntity<DadosDetalhamentoCurso> cadastrar(@RequestBody @Valid DadoscadastroCurso dados, UriComponentsBuilder uriComponentsBuilder){
+    @AutorizacaoCadastrarCurso
+    public ResponseEntity<DadosDetalhamentoCurso> cadastrar(
+            @PathVariable Long formacaoId,
+            @RequestBody @Valid DadoscadastroCurso dados,
+            UriComponentsBuilder uriBuilder) {
 
-        var curso = service.cadastrarCurso(dados);
+        var curso = service.cadastrarCurso(formacaoId,dados);
 
-        var uri = uriComponentsBuilder.path("/cursos/{cursoID}").buildAndExpand(curso.getId()).toUri();
+        var uri = uriBuilder.path("formacao/cursos/{cursoID}").buildAndExpand(curso.cursoID()).toUri();
 
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoCurso(curso));
+        return ResponseEntity.created(uri).body(curso);
     }
 
-    @GetMapping("/formacao/{formacaoId}")
-    public ResponseEntity<Page<DadosListagemCurso>> listarPorFormacao(
-            @PathVariable Long formacaoId,
+    @GetMapping
+    public ResponseEntity<Page<DadosListagemCurso>> cursosPorFormacao(
+            @PathVariable Long formacaoID,
             @PageableDefault(sort = {"curso"}) Pageable paginacao) {
 
-        var cursos = service.listarPorFormacao(paginacao, formacaoId);
+        var cursos = service.cursosPorFormacao(paginacao, formacaoID);
         return ResponseEntity.ok(cursos);
     }
 
 
-    @PutMapping
+    @PutMapping("/{id}")
     @AutorizacaoAtualizarCurso
-    public ResponseEntity<DadosDetalhamentoCurso> atualizarCurso(@Valid DadosAtualizacaoCurso dados){
+    public ResponseEntity<DadosDetalhamentoCurso> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid DadosAtualizacaoCurso dados) {
 
-        var curso = service.atualizarCurso(dados);
+        var curso = service.atualizarCurso(id,dados);
         return ResponseEntity.ok(curso);
     }
-
-    //inscrição no curso
-    // aumenta o atributo total de alunos (PUT)
-    // exibe curso no perfil (GET)
-    //é exibida a lista de curso (GET)
-    //ao clicar em inscrever-se em um curso atualiza a quantidade de estudante daquele curso específico (PUT)
 }

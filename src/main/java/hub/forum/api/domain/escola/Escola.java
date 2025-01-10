@@ -1,13 +1,11 @@
 package hub.forum.api.domain.escola;
 
-
 import hub.forum.api.domain.formacao.Formacao;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.List;
 
-@Entity(name = "Escola")
+@Entity
 @Table(name = "escolas")
 @Getter
 @Setter
@@ -19,10 +17,13 @@ public class Escola {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(unique = true, nullable = false)
     private String nomeEscola;
 
     @OneToMany(mappedBy = "escola", cascade = CascadeType.ALL)
+    @OrderBy("nome ASC")
     private List<Formacao> formacao;
+
 
     public void cadastrarEscola(DadosCadastroEscola dados) {
 

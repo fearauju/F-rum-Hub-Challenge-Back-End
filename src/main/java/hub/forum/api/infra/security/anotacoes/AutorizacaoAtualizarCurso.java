@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('PROFESSOR') and @segurancaService.podeAtualizarCurso(#cursoID, authentication.principal.id)")
+@PreAuthorize("hasRole('PROFESSOR') and @segurancaService.podeAtualizarCurso(#cursoId, #professorId))")
 public @interface AutorizacaoAtualizarCurso {
 }

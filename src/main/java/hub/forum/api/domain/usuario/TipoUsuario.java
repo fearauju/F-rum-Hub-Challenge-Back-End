@@ -10,12 +10,12 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarDadosDoUsuario() {
-            return false;
-        }
+        public boolean podeAtualizarDadosUsuario() {
+            return true;
+        } // apenas da própria conta
 
         @Override
-        public boolean podeDeletarUsuarios() {
+        public boolean podeInativarUsuarios() {
             return true;
         }
 
@@ -30,7 +30,22 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podePesquisarPorDadosDeUsuarios() {
+        public boolean podePesquisarPorUsuarios() {
+            return true;
+        }
+
+        @Override
+        public boolean podeCriarPerfil() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarPerfil() {
+            return false;
+        }
+
+        @Override
+        public boolean podePesquisarPerfil() {
             return true;
         }
 
@@ -46,6 +61,11 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeAtualizarCursos() {
+            return false;
+        }
+
+        @Override
+        public boolean podeInscreverCursos() {
             return false;
         }
 
@@ -78,7 +98,7 @@ public enum TipoUsuario {
         @Override
         public boolean podeFecharTopicos() {
             return true; // Formas de fechar os tópicos, suporte e adm ou estudante marcar como melhor resposta.
-            // Apenas o tópicos que são marcados como solucionados é fechado automaticamente.
+            // Apenas os tópicos que o estudante escolhe a melhor resposta são fechados automaticamente.
         }
 
 
@@ -88,7 +108,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarRespostas() {
+        public boolean podeAtualizarResposta() {
             return false;
         }
 
@@ -117,12 +137,12 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarDadosDoUsuario() {
+        public boolean podeAtualizarDadosUsuario() {
             return true; // apenas os seus próprios dados
         }
 
         @Override
-        public boolean podeDeletarUsuarios() {
+        public boolean podeInativarUsuarios() {
             return false;
         }
 
@@ -137,8 +157,23 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podePesquisarPorDadosDeUsuarios() {
+        public boolean podePesquisarPorUsuarios() {
             return false;
+        }
+
+        @Override
+        public boolean podeCriarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podeAtualizarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podePesquisarPerfil() {
+            return true;
         }
 
 
@@ -155,6 +190,11 @@ public enum TipoUsuario {
         @Override
         public boolean podeAtualizarCursos() {
             return false;
+        }
+
+        @Override
+        public boolean podeInscreverCursos() {
+            return true;
         }
 
         @Override
@@ -194,7 +234,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarRespostas() {
+        public boolean podeAtualizarResposta() {
             return true; // apenas as suas próprias respostas
         }
 
@@ -224,12 +264,12 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarDadosDoUsuario() {
+        public boolean podeAtualizarDadosUsuario() {
             return true; // Os seus prórpios dados
         }
 
         @Override
-        public boolean podeDeletarUsuarios() {
+        public boolean podeInativarUsuarios() {
             return false;
         }
 
@@ -244,8 +284,23 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podePesquisarPorDadosDeUsuarios() {
+        public boolean podePesquisarPorUsuarios() {
             return false;
+        }
+
+        @Override
+        public boolean podeCriarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podeAtualizarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podePesquisarPerfil() {
+            return true;
         }
 
 
@@ -262,6 +317,11 @@ public enum TipoUsuario {
         @Override
         public boolean podeAtualizarCursos() {
             return true; // Apenas cursos que leciona
+        }
+
+        @Override
+        public boolean podeInscreverCursos() {
+            return false;
         }
 
         @Override
@@ -302,7 +362,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarRespostas() {
+        public boolean podeAtualizarResposta() {
             return true; // As próprias respostas
         }
 
@@ -331,12 +391,12 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarDadosDoUsuario() {
+        public boolean podeAtualizarDadosUsuario() {
             return true;
         }
 
         @Override
-        public boolean podeDeletarUsuarios() {
+        public boolean podeInativarUsuarios() {
             return false;
         }
 
@@ -347,12 +407,27 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeRenovarAssinatura() {
+            return true;
+        }
+
+        @Override
+        public boolean podePesquisarPorUsuarios() {
             return false;
         }
 
         @Override
-        public boolean podePesquisarPorDadosDeUsuarios() {
-            return false;
+        public boolean podeCriarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podeAtualizarPerfil() {
+            return true;
+        }
+
+        @Override
+        public boolean podePesquisarPerfil() {
+            return true;
         }
 
         @Override
@@ -367,6 +442,11 @@ public enum TipoUsuario {
 
         @Override
         public boolean podeAtualizarCursos() {
+            return false;
+        }
+
+        @Override
+        public boolean podeInscreverCursos() {
             return false;
         }
 
@@ -406,7 +486,7 @@ public enum TipoUsuario {
         }
 
         @Override
-        public boolean podeAtualizarRespostas() {
+        public boolean podeAtualizarResposta() {
             return true; // As próprias respostas
         }
 
@@ -429,16 +509,20 @@ public enum TipoUsuario {
 
 
     public abstract boolean podeCadastrarUsuarios();
-    public abstract boolean podeAtualizarDadosDoUsuario(); // o próprio usuário
-    public abstract boolean podeDeletarUsuarios();// professores e suporte --> exclusão lógica
+    public abstract boolean podeAtualizarDadosUsuario(); // o próprio usuário
+    public abstract boolean podeInativarUsuarios();// professores e suporte --> exclusão lógica
     public abstract boolean podeDesbloquearUsuarios(); // adm e suporte
     public abstract boolean podeRenovarAssinatura(); // Apenas exemplo, era para ser feito por meio de pagamento
-    public abstract boolean podePesquisarPorDadosDeUsuarios();
+    public abstract boolean podePesquisarPorUsuarios();
 
+    public abstract boolean podeCriarPerfil();
+    public abstract boolean podeAtualizarPerfil();
+    public abstract boolean podePesquisarPerfil();
 
     public abstract boolean podeAcessarCursos();
     public abstract boolean podeCadastrarCursos();
     public abstract boolean podeAtualizarCursos();
+    public abstract boolean podeInscreverCursos();
 
 
     public abstract boolean podeCadastrarFormacoes();
@@ -452,7 +536,7 @@ public enum TipoUsuario {
 
 
     public abstract boolean podeResponderNoForum();
-    public abstract boolean podeAtualizarRespostas();
+    public abstract boolean podeAtualizarResposta();
     public abstract boolean podeEscolherMelhorResposta();
 
 

@@ -21,7 +21,7 @@ public class FormacaoController {
    @Autowired
    private FormacaoService service;
 
-    @PostMapping()
+    @PostMapping("/cadastrar")
     @AutorizacaoCadastrarFormacao
     public ResponseEntity<DadosDetalhamentoFormacao> cadastrar(
             @RequestBody @Valid DadosCadastroFormacao dados,
@@ -30,7 +30,7 @@ public class FormacaoController {
         log.debug("Cadastrando nova formação");
         var formacao = service.cadastrarFormacao(dados);
 
-        var uri = uriBuilder.path("/formacoes/{cursoID}")
+        var uri = uriBuilder.path("/formacoes/{id}")
                 .buildAndExpand(formacao.getId())
                 .toUri();
 
@@ -38,20 +38,20 @@ public class FormacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemFormacao>> listar(
+    public ResponseEntity<Page<DadosListagemFormacao>> listarFormacoes(
             @PageableDefault(sort = {"formacao"}) Pageable paginacao) {
 
-        var formacoes = service.listarFormacao(paginacao);
+        var formacoes = service.listarFormacoes(paginacao);
         return ResponseEntity.ok(formacoes);
     }
 
-    @PutMapping("{formacaoID}")
+    @PutMapping(("/{id}"))
     @AutorizacaoAtualizarFormacao
     public ResponseEntity<DadosDetalhamentoFormacao> atualizar(
-            @RequestBody @Valid DadosAtualizacaoFormacao dados, @PathVariable Long formacaoID) {
+            @RequestBody @Valid DadosAtualizacaoFormacao dados, @PathVariable Long id) {
 
-        log.debug("Atualizando formação com ID: {}", formacaoID);
-        var formacao = service.atualizarFormacao(dados, formacaoID);
+        log.debug("Atualizando formação com ID: {}", id);
+        var formacao = service.atualizarFormacao(dados, id);
         return ResponseEntity.ok(formacao);
     }
 }

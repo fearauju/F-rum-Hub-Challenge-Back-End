@@ -1,6 +1,6 @@
 CREATE TABLE perfis(
 
-    id BIGINT NOT NULL,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     descricao_pessoal VARCHAR(500) NOT NULL,
     data_nascimento DATE NOT NULL,

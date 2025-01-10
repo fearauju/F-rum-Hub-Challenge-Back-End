@@ -1,12 +1,27 @@
 package hub.forum.api.domain.formacao;
 
-public record DadosDetalhamentoFormacao(
-        Long escolaID,
-        String formacao,
-        AreaFormacao areaFormacao
-) {
+import hub.forum.api.domain.curso.DadosCursoResumido;
 
-    public DadosDetalhamentoFormacao(Formacao formacao){
-        this(formacao.getEscola().getId(), formacao.getFormacao(), formacao.getAreaFormacao());
+import java.util.List;
+
+public record DadosDetalhamentoFormacao(
+        Long id,
+        Long escolaId,
+        String formacao,
+        String descricao,
+        AreaFormacao areaFormacao,
+        List<DadosCursoResumido> cursos
+) {
+    public DadosDetalhamentoFormacao(Formacao formacao) {
+        this(
+                formacao.getId(),
+                formacao.getEscola().getId(),
+                formacao.getFormacao(),
+                formacao.getDescricao(),
+                formacao.getAreaFormacao(),
+                formacao.getCursos().stream()
+                        .map(DadosCursoResumido::new)
+                        .toList()
+        );
     }
 }

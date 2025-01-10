@@ -1,16 +1,18 @@
 package hub.forum.api.domain.usuario;
 
-import hub.forum.api.domain.pefil.Perfil;
+import hub.forum.api.domain.perfil.Perfil;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+
 
 @Entity()
 @Table(name = "usuarios")
@@ -24,24 +26,82 @@ import java.util.List;
 @Slf4j
 public abstract class Usuario implements UserDetails {
 
+    //O cadastro de usuários será feito de forma interna, via terminal. Senha, em formato hash --> BCrypt.
+    //Principalmente as subclasses conforme o tipo de usuário. Verifique o Enum TipoUsuario.
+
+    @Version //tentar evitar conflito de concorrência.
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String login; // será o E-mail: do usuario e deve ser único
-    private String senha; // deve ser em hash --> BCrypt
+
+    @Column(unique = true, nullable = false)
+    @Email
+    private String login;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String senha;
+
+    @Transient
+    public abstract TipoUsuario obterTipoUsuario();
+
+    @Column(name = "ultimo_login", nullable = false)
     private LocalDateTime ultimoLogin;
+
     @Column(name = "tentativas_login")
     private Integer tentativasLogin = 0;
 
     @Column(name = "conta_bloqueada")
     private boolean contaBloqueada = false;
 
-    @Transient
-    public abstract TipoUsuario obterTipoUsuario();
+    @Column(name = "ativo",nullable = false)
+    private boolean ativo = true;
 
 
     @OneToOne(mappedBy = "usuario", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
+    @JoinColumn(name = "perfil_id")
     private Perfil perfil;
+
+
+    public void incrementarTentativasLogin() {
+
+        this.tentativasLogin++;
+        if (this.tentativasLogin >= 6) {
+            this.contaBloqueada = true;
+            log.warn("Conta bloqueada após {} tentativas falhas: {}",
+                    this.tentativasLogin, this.login);
+        }
+    }
+
+    public void resetarTentativasLogin() {
+
+        if (this.tentativasLogin > 0) {
+            log.info("Resetando tentativas de login para usuário: {}", this.login);
+            this.tentativasLogin = 0;
+        }
+    }
+
+    public void inativarUsuario() {
+
+        this.ativo = false;
+    }
+
+    public void atualizarDadosLogin(DadosAtualizacaoLogin dados) {
+
+        if (dados.login() != null) {
+            this.login = dados.login().trim();
+        }
+
+        if (dados.senha() != null) {
+            this.senha = dados.senha();
+        }
+
+        log.debug("Dados de login atualizados para usuário ID: {}", this.id);
+    }
+
 
     //métodos da interface
     @Override
@@ -73,7 +133,7 @@ public abstract class Usuario implements UserDetails {
     @Override
     public boolean isAccountNonLocked() {
         return !contaBloqueada;
-    } //administrador ou suporte pode desbloquear resetando as falhas de ‘login’ para zero
+    }
 
     @Override
     public boolean isCredentialsNonExpired() {
@@ -85,15 +145,4 @@ public abstract class Usuario implements UserDetails {
         return true;
     }
 
-    public void incrementarTentativasLogin() {
-        this.tentativasLogin++;
-        if (this.tentativasLogin >= 6) {
-            this.contaBloqueada = true;
-        }
-    }
-
-    public void resetarTentativasLogin() {
-        this.tentativasLogin = 0;
-        this.contaBloqueada = false;
-    }
 }

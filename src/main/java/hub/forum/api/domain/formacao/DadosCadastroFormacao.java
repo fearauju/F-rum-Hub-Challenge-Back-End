@@ -2,17 +2,13 @@ package hub.forum.api.domain.formacao;
 
 import hub.forum.api.domain.curso.DadosCursosFormacao;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
 public record DadosCadastroFormacao(
 
-        @NotNull(message = "O cursoID da escola é obrigatório")
-        @Pattern(regexp = "^[\\d0-9]")
+        @NotNull(message = "O id da escola é obrigatório")
         Long escolaID,
 
         @NotBlank(message = "O nome da formação é obrigatório")
@@ -26,7 +22,7 @@ public record DadosCadastroFormacao(
 
         @NotBlank(message = "A descrição da formação é obrigatória")
         @Pattern(
-                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9_.,:()\\-\\s]+$", message = "A descrição deve conter apenas letras, numeros, espaços e underline"
+                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ0-9.,:()\\-\\s]+$", message = "A mensagem deve conter apenas letras, numeros e espaços"
         )
         String descricao,
 

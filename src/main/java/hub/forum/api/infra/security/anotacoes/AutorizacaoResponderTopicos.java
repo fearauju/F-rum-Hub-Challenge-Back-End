@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ESTUDANTE','PROFESSOR','SUPORTE') and @Seguranca.Service.podeResponderNoForum(#topicoID)")
+@PreAuthorize("hasAnyRole('ESTUDANTE','PROFESSOR','SUPORTE')")
 public @interface AutorizacaoResponderTopicos {
 }

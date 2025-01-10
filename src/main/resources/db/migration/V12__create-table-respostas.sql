@@ -3,7 +3,7 @@ CREATE TABLE respostas(
     id BIGINT NOT NULL AUTO_INCREMENT,
     mensagem VARCHAR(1000) NOT NULL,
     data_criacao DATETIME NOT NULL,
-    melhor_resposta TINYINT DEFAULT 0,
+    melhor_resposta TINYINT DEFAULT FALSE,
     autor_id BIGINT NOT NULL,
     topico_id BIGINT NOT NULL,
 

@@ -1,17 +1,23 @@
 package hub.forum.api.domain.matricula;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record DadosDetalhamentoMatricula(
 
-        Long estudante_id,
+        Long estudanteID,
         String nomeEstudante,
-        Integer numeroMatricula,
+        Long numeroMatricula,
         LocalDateTime dataAssinaturaMatricula,
-        LocalDateTime dataExpiracaoMatricula
+        LocalDateTime dataExpiracaoMatricula,
+        List<DadosCursoMatriculado> cursos
+
 ) {
-    public DadosDetalhamentoMatricula(DadosDetalhamentoMatricula dadosMatricula) {
-        this(dadosMatricula.estudante_id(), dadosMatricula.nomeEstudante(), dadosMatricula.numeroMatricula(),
-                dadosMatricula.dataAssinaturaMatricula(),dadosMatricula.dataExpiracaoMatricula());
+    public DadosDetalhamentoMatricula(Matricula matricula) {
+        this(matricula.getEstudante().getId(), matricula.getEstudante().getPerfil().getNome(),
+                matricula.getNumeroMatricula(), matricula.getDataAssinatura(),
+                matricula.getDataExpiracaoAssinatura(), matricula.getMatriculaCurso().stream()
+                        .map(DadosCursoMatriculado::new)
+                        .toList());
     }
 }

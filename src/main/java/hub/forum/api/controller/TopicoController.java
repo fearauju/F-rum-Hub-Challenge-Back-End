@@ -1,9 +1,11 @@
 package hub.forum.api.controller;
 
 import hub.forum.api.domain.topico.*;
+import hub.forum.api.domain.topico.DadosFechamentoTopico;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoApagarTopicos;
-import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizacaoTopico;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarTopico;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCriarTopico;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoFecharTopico;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TopicoController {
 
     @Autowired
-    private TopicoService topicoService;
+    private TopicoService service;
 
     @PostMapping
     @AutorizacaoCriarTopico
@@ -29,34 +31,72 @@ public class TopicoController {
         // implementação
 
         log.debug("Validando os dados antes de criar o objeto tópico");
-        var topico = topicoService.criarTopico(dados);
+        var topico = service.criarTopico(dados);
 
         var uri = uriComponentsBuilder.path("/topicos/{cursoID}").buildAndExpand(topico.topicoID()).toUri();
         return ResponseEntity.created(uri).body(topico);
     }
 
-    @PutMapping("/{topicoId}/atualizar-topico")
-    @AutorizacaoAtualizacaoTopico
+    @PutMapping("/{topicoID}/atualizar")
+    @AutorizacaoAtualizarTopico
     public ResponseEntity<DadosDetalhamentoTopico> atualizarTopico(@PathVariable Long topicoId, @Valid DadosAtualizacaoTopico dados) {
 
         log.debug("verificando o serviço para atualizar tópico");
-       var topico  = topicoService.atualizarTopico(topicoId, dados);
+        var topico  = service.atualizarTopico(topicoId, dados);
         return ResponseEntity.ok(topico); // retornar dados detalhamento do tópico
     }
 
-    @GetMapping
-    public ResponseEntity<Page<DadosListagemTopico>> ListarTopicos(@PageableDefault(size = 10, sort = {"dataCriacao"})Pageable paginacao){
+    @GetMapping("nao_resolvidos")
+    public ResponseEntity<Page<DadosListagemTopico>> listarTopicosNaoResolvidos(@PageableDefault(sort = {"dataCriacao"})Pageable paginacao){
 
-         log.debug("Buscando tópicos e organizando por paginas");
-          var page = topicoService.listarTopicos(paginacao);
-          return ResponseEntity.ok(page);
+         log.debug("Buscando tópicos não resolvidos e organizando por paginas");
+         var topicosNaoResolvidos = service.listarTopicosNaoResolvidos(paginacao);
+         return ResponseEntity.ok(topicosNaoResolvidos);
     }
 
-    @DeleteMapping("/{topicoId}")
+    @GetMapping("/resolvidos")
+    public ResponseEntity<Page<DadosListagemTopico>> listarTopicosResolvidos(@PageableDefault(sort = {"dataCriacao"}) Pageable paginacao){
+
+        log.debug("Buscando tópicos resolvidos e organizando por paginas");
+        var topicosResolvidos = service.listarTopicosResolvidos(paginacao);
+        return ResponseEntity.ok(topicosResolvidos);
+    }
+
+    @GetMapping("total_nao_resolvidos")
+    public ResponseEntity<Integer> totalTopicosNaoResolvidos(){
+
+        var total = service.totalTopicosNaoResolvidos();
+        return ResponseEntity.ok(total);
+    }
+
+    @GetMapping("/total_resolvidos")
+    public ResponseEntity<Integer> totalTopicosResolvidos(){
+        var total = service.totalTopicosResolvidos();
+        return ResponseEntity.ok(total);
+    }
+
+    @GetMapping("/sem_respostas")
+    public ResponseEntity<Page<Topico>> topicoSemResposta(@PageableDefault(sort = {"dataCriacao"}) Pageable paginacao){
+
+        var topico = service.topicoSemRespostas(paginacao);
+        return  ResponseEntity.ok(topico);
+    }
+
+    @DeleteMapping("/{topicoID}")
     @AutorizacaoApagarTopicos
     public ResponseEntity<?> deletarTopico(@PathVariable Long topicoId){
 
-        topicoService.deletarTopico(topicoId);
+        log.debug("Buscando tópico para deletar");
+        service.deletarTopico(topicoId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{topicoID}/fechar")
+    @AutorizacaoFecharTopico
+    public ResponseEntity<String> fecharTopico(@PathVariable Long topicoID, @Valid DadosFechamentoTopico dados){
+
+        log.debug("Validando tópico antes de fechar");
+        service.fecharTopico(topicoID, dados);
+        return ResponseEntity.ok("Tópico Fechado");
     }
 }

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -18,16 +20,20 @@ import java.util.List;
 @DiscriminatorValue("ESTUDANTE")
 public class Estudante extends Usuario{
 
-    private Integer AnoDeIngresso;
+    private Integer anoIngresso;
 
     @Column(name = "interesses_academicos")
     @Convert(converter = ConverterListaDeString.class)
-    private List<String> interessesAcademicos; //Áreas de estudo ou temas que o estudante tem interesse.
+    private List<String> interessesAcademicos;
 
-    private Integer Pontuacao;//Sistema de pontuação com base na interação com o conteúdo.
-    private Boolean StatusDaMatricula; // se não renovar após a data de assinatura.
+    @Column(name = "cursos_inscrito")
+    @Convert(converter = ConverterListaDeString.class)
+    private List<String> cursosInscrito; //feito posteriormente, quando o estudante se inscrever em algum dos cursos disponíveis.
+                                        //Com a entidade matriculaCurso
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal pontuacao;//Sistema de pontuação com base na interação com o conteúdo dos cursos. Feito posteriormente
     private Integer cargaHorariaConcluida;
-
 
     @OneToMany(mappedBy = "estudante", cascade = CascadeType.ALL)
     private List<Matricula> matriculas;

@@ -6,7 +6,6 @@ import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +43,14 @@ public class Topico {
     @OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
     private List<Resposta> resposta = new ArrayList<>();
 
-    public void cadastrarTopico(@Valid DadosCadastroTopico dados) {
+    public void cadastrarTopico(@Valid DadosCadastroTopico dados, Curso curso, Usuario autor) {
 
         this.titulo = dados.titulo();
         this.mensagem = dados.mensagem();
         this.dataCriacao = LocalDateTime.now();
-        this.curso.setId(dados.cursoID());
-        this.autor.setId(dados.usuarioID());
-        this.resolvido = false; //fechar tópico --> usuário suporte
+        this.curso = curso;
+        this.autor = autor;
+        this.resolvido = false; //fechar tópico --> usuário suporte ou administrador
     }
     public void atualizarTopico(DadosAtualizacaoTopico dados) {
 

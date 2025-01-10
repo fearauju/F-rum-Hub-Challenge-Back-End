@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ESTUDANTE') and @segurancaService.podeEscolherMelhorResposta(#topicoId, authentication.principal.id)")
+@PreAuthorize("hasRole('ESTUDANTE') and @segurancaService.podeEscolherMelhorResposta(#topicoID)")
 public @interface AutorizacaoEscolherResolvido {}

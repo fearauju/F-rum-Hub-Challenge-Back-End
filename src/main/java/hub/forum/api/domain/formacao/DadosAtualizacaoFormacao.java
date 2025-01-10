@@ -9,7 +9,7 @@ public record DadosAtualizacaoFormacao(
         AreaFormacao areaFormacao,
 
         @Pattern(
-                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ ]+$", message = "O nome deve conter apenas letras e espaços"
+                regexp = "^[a-zA-ZÀ-ÖØ-öø-ÿ ]+$", message = "O nome da formação deve conter apenas letras e espaços"
         )
         String formacao,
 

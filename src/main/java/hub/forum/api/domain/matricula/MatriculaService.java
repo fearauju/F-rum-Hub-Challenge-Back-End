@@ -1,15 +1,14 @@
 package hub.forum.api.domain.matricula;
 
-import hub.forum.api.domain.usuario.TipoUsuario;
+import hub.forum.api.domain.curso.CursoRepository;
+import hub.forum.api.domain.curso.DadosInscricaoCurso;
 import hub.forum.api.domain.usuario.UsuarioRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
-import jakarta.validation.Valid;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -21,39 +20,54 @@ public class MatriculaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private CursoRepository cursoRepository;
 
-    public boolean verificarStatusMatricula(Long estudanteId) {
 
-        log.debug("Verificando matrícula ativa para estudante {}", estudanteId);
-        var matricula = matriculaRepository.findMatriculaByEstudanteId(estudanteId);
+    public boolean verificarStatusMatricula(Long estudanteID) {
 
-        if (matricula == null) {
-            log.warn("Nenhuma matrícula encontrada para o estudante {}", estudanteId);
-            return true;
-        }
-
-        var hoje = LocalDateTime.now();
-        return !matricula.getExpiracaoAssinatura().isAfter(hoje);
+        return matriculaRepository.findMatriculaAtivaByEstudanteId(estudanteID)
+                .map(Matricula::isAtiva)
+                .orElse(false);
     }
 
 
-    public DadosDetalhamentoMatricula atualizarMatriculaEstudante(@Valid DadosEstudanteMatriculado dados) {
+    @Transactional
+    public DadosDetalhamentoMatricula renovarMatriculaEstudante(Long estudanteID) {
 
-        var usuario = usuarioRepository.getReferenceById(dados.usuario_Id());
+        var matricula = matriculaRepository.findMatriculaAtivaByEstudanteId(estudanteID)
+                .orElseThrow(() -> new ValidacaoException("Matrícula não encontrada"));
 
+        log.info("Renovando matrícula do estudante ID: {}", estudanteID);
+        matricula.renovarMatricula();
 
-        if(!usuarioRepository.existsById(dados.estudante_Id())){
-            throw new ValidacaoException("Estudante não encontrado");
+        log.info("Matrícula renovada com sucesso para estudante ID: {}", estudanteID);
+        return new DadosDetalhamentoMatricula(matricula);
+    }
+
+    public DadosDetalhamentoMatricula buscarMatriculaEstudante(Long estudanteID) {
+
+        var matricula = matriculaRepository.findMatriculaByEstudanteId(estudanteID);
+
+        return new DadosDetalhamentoMatricula(matricula);
+    }
+
+    @Transactional
+    public void inscreverEmCurso(DadosInscricaoCurso dados) {
+        var matricula = matriculaRepository.findMatriculaByEstudanteId(dados.estudanteID());
+
+        if(matricula == null){
+            throw new ValidacaoException("matricula não encontrada");
         }
 
-        var estudante = usuarioRepository.getReferenceById(dados.estudante_Id());
+        var curso = cursoRepository.findById(dados.cursoID())
+                .orElseThrow(() -> new ValidacaoException("Curso não encontrado"));
 
-        if(estudante.obterTipoUsuario() != TipoUsuario.ESTUDANTE){
-            throw new ValidacaoException("Este usuário não é um estudante");
+        if (matricula.possuiCurso(curso)) {
+            throw new ValidacaoException("Estudante já está inscrito neste curso");
         }
 
-        var hoje = LocalDateTime.now();
-
-        return matriculaRepository.UpdateDataAssinaturaById(hoje,estudante.getId());
+        matricula.adicionarCurso(curso);
+        log.info("Estudante {} inscrito no curso {}", dados.estudanteID(), dados.cursoID());
     }
 }

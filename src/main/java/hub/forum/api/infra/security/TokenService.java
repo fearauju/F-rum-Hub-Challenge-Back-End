@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.springframework.security.config.Elements.JWT;
 
 @Service
 @Slf4j
@@ -65,22 +69,17 @@ public class TokenService {
         }
     }
 
-    public String validarToken(String token) {
+
+    // Método de validação atualizado
+    public boolean validarToken(String token) {
         try {
-            log.debug("Iniciando validação do token");
-            Jws<Claims> claimsJws = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey()) // Aqui está a correção
-                    .requireIssuer("API Forum.hub")
-                    .requireAudience("meu-cliente")
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-
-            String subject = claimsJws.getBody().getSubject();
-            log.debug("Token válido para o usuário: {}", subject);
-            return subject;
+            return true;
         } catch (JwtException e) {
-            log.error("Erro na validação do token: ", e);
-            throw new RuntimeException("Token inválido ou expirado!", e);
+            return false;
         }
     }
 }

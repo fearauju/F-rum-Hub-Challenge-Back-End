@@ -29,6 +29,10 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+        log.debug("Processando requisição para: {} {}",
+                request.getMethod(),
+                request.getRequestURI());
+
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
@@ -52,7 +56,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                         usuario.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                log.debug("Autenticação realizada com sucesso. Authorities definidas: {}",
+                log.info("Autenticação realizada com sucesso. Authorities definidas: {}",
                         authentication.getAuthorities());
             } catch (Exception e) {
                 log.error("Erro ao processar token: ", e);

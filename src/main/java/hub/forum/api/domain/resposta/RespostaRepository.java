@@ -9,11 +9,11 @@ import java.util.Optional;
 public interface RespostaRepository extends JpaRepository<Resposta,Long> {
 
 
-    Optional<Resposta> findByIdAndTopicoId(Long respostaId, Long topicoId);
+    Optional<Resposta> findByIdAndTopicoId(Long respostaID, Long topicoID);
 
     @Query("""
             SELECT r
-            FROM Resposta
+            FROM Resposta r
             WHERE r.topico.id = :topicoID
             """)
     Page<Resposta> findRespostasTopicoID(Long topicoID, Pageable paginacao);

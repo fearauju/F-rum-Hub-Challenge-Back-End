@@ -1,23 +1,20 @@
 package hub.forum.api.infra.security;
 
 import hub.forum.api.domain.curso.CursoRepository;
-import hub.forum.api.domain.escola.EscolaRepository;
-import hub.forum.api.domain.formacao.FormacaoRepository;
+import hub.forum.api.domain.perfil.PerfilRepository;
+import hub.forum.api.domain.resposta.RespostaRepository;
 import hub.forum.api.domain.topico.TopicoRepository;
 import hub.forum.api.domain.usuario.Usuario;
-import hub.forum.api.domain.usuario.UsuarioRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @Slf4j
 public class SegurancaService {
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private CursoRepository cursoRepository;
@@ -26,79 +23,59 @@ public class SegurancaService {
     private TopicoRepository topicoRepository;
 
     @Autowired
-    private FormacaoRepository formacaoRepository;
+    private RespostaRepository  respostaRepository;
 
     @Autowired
-    private EscolaRepository escolaRepository;
+    private PerfilRepository perfilRepository;
 
 
-    //uso comum
-    private Usuario getUsuarioLogado() {
-        return (Usuario) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+    //Usuario
+    public Usuario getUsuarioLogado() {
+        try {
+            return (Usuario) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+        } catch (Exception e) {
+            log.error("Erro ao obter usuário logado", e);
+            throw new ValidacaoException("Erro ao identificar usuário");
+        }
     }
 
+    public boolean podeAtualizarDadosUsuario(Long usuarioID) {
 
-    //Escola
+            if (!getUsuarioLogado().getId().equals(usuarioID)) {
+                log.warn("Tentativa de atualização não autorizada: Usuário {} tentou atualizar dados do usuário {}",
+                        getUsuarioLogado().getId(), usuarioID);
 
-    public boolean podeAtualizarEscola(Long escolaId) {
-        return escolaRepository.existsById(escolaId);
+                return false;
+            }
+
+            return true;
     }
 
-    //Formação
-
-    public boolean podeCadastrarFormacao(Long escolaId) {
-        return escolaRepository.existsById(escolaId);
+    //Perfil
+    public boolean podeAtualizarPerfil(Long perfilID) {
+        return perfilRepository.existsByIdAndUsuarioId(perfilID, getUsuarioLogado().getId());
     }
 
-    public boolean podeAtualizarFormacao(Long formacaoId) {
-        return formacaoRepository.existsById(formacaoId);
-    }
-
-
-    // curso
-
+    //Curso
     public boolean podeAtualizarCurso(Long cursoID, Long professorID) {
         return cursoRepository.existsByIdAndProfessorId(cursoID, professorID);
     }
 
 
-    //Topico
-
-    public boolean podeCriarTopico(String titulo, String mensagem) {
-
-        if (topicoRepository.existsByTituloOrMensagem(titulo,mensagem)) {
-
-            throw new ValidacaoException("Já exite um tópico com esse título ou com a mesma dúvida.");
-        }
-
-        return true;
-    }
-
-    public boolean podeAtualizarTopico(Long topicoID, Long usuarioID){
-
-        return topicoRepository.findByIdAndAutorId(topicoID, usuarioID)
-                .isPresent();
+    //Tópico
+    public boolean podeAtualizarTopico(Long topicoID) {
+        return topicoRepository.findByIdAndAutorId(topicoID, getUsuarioLogado().getId()).isPresent();
     }
 
 
     //Resposta
-    public boolean podeResponderNoForum(Long topicoID){
-// Verifica se o tópico está aberto (não resolvido)
-        return !topicoRepository.isTopicoResolvido(topicoID);
+    public boolean podeEscolherMelhorResposta(Long topicoID) {
+        return topicoRepository.findByIdAndAutorId(topicoID, getUsuarioLogado().getId()).isPresent();
     }
 
-    public boolean podeEscolherMelhorResposta(Long topicoID, Long usuarioID){
-
-        return topicoRepository.findByIdAndAutorId(topicoID, usuarioID)
-                .isPresent();
+    public boolean podeAtualizarResposta(Long topicoID,Long respostaID) {
+        return respostaRepository.findByIdAndTopicoId(respostaID, topicoID).isPresent();
     }
-
-    public boolean podeAtualizarResposta(Long topicoID, Long usuarioID){
-
-        return topicoRepository.findByIdAndAutorId(topicoID, usuarioID)
-                .isPresent();
-    }
-
 }

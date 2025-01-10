@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity(name = "Resposta")
+@Entity
 @Table(name = "respostas")
 @Getter
 @Setter
@@ -18,9 +18,14 @@ public class Resposta {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(nullable = false, length = 1000)
     private String resposta;
+
+    @Column(nullable = false)
     private LocalDateTime dataCriacao;
-    private boolean melhor_resposta; // se tiver melhor resposta tópico é fechado
+
+    @Column(name = "melhor_resposta", nullable = false)
+    private boolean melhorResposta; // se tiver melhor resposta tópico é fechado
 
     @ManyToOne
     @JoinColumn(name = "topico_id")
@@ -30,14 +35,12 @@ public class Resposta {
     @JoinColumn(name = "autor_id") // O autor está relacionado à tabela "usuarios"
     private Usuario autor;
 
-    public void salvarResposta(DadosRegistroReposta dados) {
-
-        if(dados.resposta() != null){
-            this.resposta = dados.resposta();
-        }
-
+    public void salvarResposta(DadosRegistroReposta dados, Topico topico, Usuario autor) {
+        this.resposta = dados.resposta().trim();
         this.dataCriacao = LocalDateTime.now();
-        this.melhor_resposta = false;
+        this.melhorResposta = false;
+        this.topico = topico;
+        this.autor = autor;
     }
 
     public void atualizarResposta(DadosRegistroReposta dados) {
@@ -46,10 +49,8 @@ public class Resposta {
         }
     }
 
-    public void escolherMelhorResposta() {
-        this.melhor_resposta = true;
+    public void escolherMelhorResposta(Topico topico) {
+        this.melhorResposta = true;
         topico.marcarComoResolvido();
     }
-
-
 }

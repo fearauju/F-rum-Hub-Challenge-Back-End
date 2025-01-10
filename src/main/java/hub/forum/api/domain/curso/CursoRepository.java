@@ -6,33 +6,50 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface CursoRepository extends JpaRepository<Curso,Long> {
 
     @Query("""
-        SELECT c FROM Curso c
-        WHERE c.formacao.id = :formacaoId
+        SELECT c
+        FROM Curso c
+        WHERE c.formacao.id = :formacaoID
         """)
     Page<Curso> findByFormacaoId(
-            @Param("formacaoId") Long formacaoId,
+            @Param("formacaoId") Long formacaoID,
             Pageable paginacao
     );
-
-    @Query("""
-            SELECT u Curso u
-            WHERE U.formacao.id = :formacao_id
-            AND u.curso.id = :curso_id
-            """)
-    boolean existsByIdINFormacao(Long formacao_id, Long curso_id);
 
         @Query("""
         SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
         FROM Curso c
-        WHERE c.id = :cursoId
-        AND c.professor.id = :professorId
+        JOIN Usuario u
+        WHERE c.id = :cursoID
+        AND u.id =: professorID
+        AND TYPE(u) = Professor
         """)
         boolean existsByIdAndProfessorId(
-                @Param("cursoId") Long cursoId,
-                @Param("professorId") Long professorId
+                 Long cursoID,
+                 Long professorID
         );
+
+    @Query("""
+        SELECT c FROM Curso c
+        LEFT JOIN FETCH c.matriculaCursos
+        WHERE c.id = :id
+        """)
+    Optional<Curso> findByIdWithMatriculas(Long id);
+
+    boolean existsByCursoIgnoreCase(String curso);
+
+    @Query("""
+        SELECT c FROM Curso c
+        WHERE c.id = :cursoId AND c.formacao.id = :formacaoId
+        """)
+    Optional<Curso> findByIdAndFormacaoId(Long cursoId, Long formacaoId);
+
+    boolean existsByIdAndFormacaoId(Long cursoID, Long formacaoID);
+
+    Curso findByCurso(String curso);
 }

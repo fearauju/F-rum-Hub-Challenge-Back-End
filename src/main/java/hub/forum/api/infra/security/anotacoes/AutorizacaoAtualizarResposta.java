@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ESTUDANTE', 'PROFESSOR', 'SUPORTE') and @Seguranca.Service.PodeAtualizarTopico(#topicoID, authorization.principal.id)")
+@PreAuthorize("hasAnyRole('ESTUDANTE', 'PROFESSOR', 'SUPORTE') and @seguranca.Service.podeAtualizarResposta(#topicoID,#respostaID)")
 public @interface AutorizacaoAtualizarResposta {
 }
 
