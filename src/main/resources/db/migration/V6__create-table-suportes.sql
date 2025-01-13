@@ -7,7 +7,6 @@ CREATE TABLE suportes(
    avaliacao_suporte DOUBLE DEFAULT 0.0,
    motivo_avaliacao VARCHAR(250),
    data_admissao DATE NOT NULL,
-   ativo TINYINT NOT NULL,
 
    FOREIGN KEY(id) REFERENCES usuarios(id)
 );

@@ -1,0 +1,1 @@
+ALTER TABLE professores MODIFY total_horas_lecionadas BIGINT;

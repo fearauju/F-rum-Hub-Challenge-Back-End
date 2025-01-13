@@ -1,6 +1,6 @@
 package hub.forum.api.domain.escola;
 
-import hub.forum.api.domain.formacao.DadosFormacaoResumido;
+import hub.forum.api.domain.formacao.dto.DadosFormacaoResumido;
 
 import java.util.List;
 

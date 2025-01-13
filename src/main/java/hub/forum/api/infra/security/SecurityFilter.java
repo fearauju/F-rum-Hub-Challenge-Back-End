@@ -1,6 +1,7 @@
 package hub.forum.api.infra.security;
 
-import hub.forum.api.domain.usuario.UsuarioRepository;
+
+import hub.forum.api.domain.usuario.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository repository;
+    private UsuarioRepository usuarioRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -40,11 +41,12 @@ public class SecurityFilter extends OncePerRequestFilter {
                 log.debug("Token encontrado, iniciando validação");
                 var subject = tokenService.getSubject(tokenJWT);
 
-                var usuario = repository.findByLogin(subject)
-                        .orElseThrow(() -> {
-                            log.error("Usuário não encontrado para o login: {}", subject);
-                            return new UsernameNotFoundException("Usuário não encontrado");
-                        });
+                var usuario = usuarioRepository.findByLoginAndAtivoTrue(subject);
+
+                if(usuario == null){
+                    log.error("Usuário não encontrado para o login: {}", subject);
+                    throw new UsernameNotFoundException("Usuário não encontrado");
+                }
 
                 log.debug("Usuário encontrado: {}", usuario.getLogin());
                 log.debug("Tipo de usuário: {}", usuario.obterTipoUsuario());

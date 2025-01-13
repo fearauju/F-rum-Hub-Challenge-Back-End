@@ -1,8 +1,9 @@
 package hub.forum.api.domain.perfil;
 
 import hub.forum.api.domain.perfil.validacao.DadosValidacaoPerfil;
-import hub.forum.api.domain.usuario.UsuarioRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.usuario.professor.Professor;
+import hub.forum.api.domain.usuario.repository.UsuarioRepository;
+import hub.forum.api.domain.util.ValidadorBase;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -82,5 +83,8 @@ public class PerfilService {
         perfil.atualizarPerfil(dados);
 
         return new DadosDetalhamentoPerfil(perfil);
+    }
+
+    public void criarPerfilPadrao(Professor professor) {
     }
 }

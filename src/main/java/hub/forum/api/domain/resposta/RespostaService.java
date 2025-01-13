@@ -3,8 +3,9 @@ package hub.forum.api.domain.resposta;
 import hub.forum.api.domain.topico.DadosFechamentoTopico;
 import hub.forum.api.domain.topico.TopicoRepository;
 import hub.forum.api.domain.usuario.TipoUsuario;
-import hub.forum.api.domain.usuario.UsuarioRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.usuario.repository.UsuarioRepository;
+import hub.forum.api.domain.usuario.suporte.SuporteRepository;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import hub.forum.api.infra.security.SegurancaService;
 import jakarta.transaction.Transactional;
@@ -28,6 +29,9 @@ public class RespostaService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private SuporteRepository suporteRepository;
 
     @Autowired
     private SegurancaService segurancaService;
@@ -68,7 +72,7 @@ public class RespostaService {
         return new DadosDetalhamentoResposta(resposta);
     }
 
-    public Page<DadosListagemResposta> listarRespostas(Long topicoID, Pageable paginacao) {
+    public Page<DadosListagemResposta> listarRespostasDoTopico(Long topicoID, Pageable paginacao) {
 
         return respostaRepository.findRespostasTopicoID(topicoID,paginacao).map(DadosListagemResposta::new);
     }
@@ -89,7 +93,7 @@ public class RespostaService {
 
         if(resposta.getAutor().obterTipoUsuario() == TipoUsuario.SUPORTE) {
 
-            var suporte = usuarioRepository.findUsuarioSuporte(resposta.getAutor().getId());
+            var suporte = suporteRepository.findUsuarioSuporte(resposta.getAutor().getId());
             suporte.adicionarCasosResolvidos(dados, suporte);
             usuarioRepository.save(suporte);
         }

@@ -1,6 +1,10 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.curso.*;
+import hub.forum.api.domain.curso.dto.DadosAtualizacaoCurso;
+import hub.forum.api.domain.curso.dto.DadosDetalhamentoCurso;
+import hub.forum.api.domain.curso.dto.DadosListagemCurso;
+import hub.forum.api.domain.curso.dto.DadoscadastroCurso;
+import hub.forum.api.domain.curso.service.CursoService;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarCurso;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarCurso;
 import jakarta.validation.Valid;
@@ -24,7 +28,7 @@ public class CursoController {
 
     @PostMapping
     @AutorizacaoCadastrarCurso
-    public ResponseEntity<DadosDetalhamentoCurso> cadastrar(
+    public ResponseEntity<DadosDetalhamentoCurso> cadastrarCurso(
             @PathVariable Long formacaoId,
             @RequestBody @Valid DadoscadastroCurso dados,
             UriComponentsBuilder uriBuilder) {
@@ -48,7 +52,7 @@ public class CursoController {
 
     @PutMapping("/{id}")
     @AutorizacaoAtualizarCurso
-    public ResponseEntity<DadosDetalhamentoCurso> atualizar(
+    public ResponseEntity<DadosDetalhamentoCurso> atualizarCurso(
             @PathVariable Long id,
             @RequestBody @Valid DadosAtualizacaoCurso dados) {
 

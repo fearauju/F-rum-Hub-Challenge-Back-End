@@ -1,7 +1,7 @@
 package hub.forum.api.domain.escola;
 
 import hub.forum.api.domain.escola.validacao.DadosValidacaoEscola;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;

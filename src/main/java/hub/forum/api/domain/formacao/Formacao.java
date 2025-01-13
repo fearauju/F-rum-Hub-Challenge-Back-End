@@ -1,19 +1,20 @@
 package hub.forum.api.domain.formacao;
 
 import hub.forum.api.domain.curso.Curso;
-import hub.forum.api.domain.curso.DadosCursosFormacao;
+import hub.forum.api.domain.curso.dto.DadosCursosFormacao;
 import hub.forum.api.domain.escola.Escola;
+import hub.forum.api.domain.formacao.dto.DadosAtualizacaoFormacao;
+import hub.forum.api.domain.formacao.dto.DadosCadastroFormacao;
 import hub.forum.api.domain.matricula.Matricula;
-import hub.forum.api.domain.usuario.Professor;
-import hub.forum.api.domain.usuario.UsuarioRepository;
+import hub.forum.api.domain.usuario.professor.Professor;
+import hub.forum.api.domain.util.DurationUtils;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Entity(name = "Formacao")
+@Entity
 @Table(name = "formacoes")
 @Getter
 @Setter
@@ -40,14 +41,13 @@ public class Formacao {
     @JoinColumn(name = "escola_id")
     private Escola escola;
 
-    @OneToMany(mappedBy = "formacao", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "formacao", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Matricula> matriculas;
 
-    @OneToMany(mappedBy = "formacao", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "formacao", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Curso> cursos = new ArrayList<>();
 
     public void cadastrarFormacao(DadosCadastroFormacao dados, Escola escola, List<Professor> professores) {
-
         this.escola = escola;
         this.formacao = dados.formacao().trim();
         this.areaFormacao = dados.areaFormacao();
@@ -57,21 +57,36 @@ public class Formacao {
     }
 
     private List<Curso> criarCursos(List<DadosCursosFormacao> cursosDto, List<Professor> professores) {
+        Map<Long, Professor> professoresPorId = professores.stream()
+                .collect(Collectors.toMap(Professor::getId, p -> p));
 
         return cursosDto.stream()
                 .map(cursoDto -> {
                     var curso = new Curso();
                     curso.setCurso(cursoDto.nome().trim());
-                    curso.setDuracao(parseDuracao(cursoDto.duracao()));
+                    curso.setDuracao(DurationUtils.parseDuracao(cursoDto.duracao()));
                     curso.setFormacao(this);
-                    curso.setProfessores(professores);
+
+                    // Usar apenas IDs dos professores inicialmente
+                    Set<Long> professorIds = professores.stream()
+                            .filter(p -> cursoDto.nome_professor().contains(p.getPerfil().getNome()))
+                            .map(Professor::getId)
+                            .collect(Collectors.toSet());
+
+                    // Criar nova lista de professores
+                    curso.setProfessores(new ArrayList<>());
+
+                    // Adicionar referências por ID
+                    professorIds.forEach(id -> {
+                        Professor professor = professoresPorId.get(id);
+                        if (professor != null) {
+                            curso.getProfessores().add(professor);
+                        }
+                    });
+
                     return curso;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private Duration parseDuracao(String duracao) {
-        return Duration.parse("PT" + duracao.replace(":", "H") + "M");
     }
 
     public void atualizarInformacoes(DadosAtualizacaoFormacao dados) {

@@ -1,8 +1,8 @@
 package hub.forum.api.domain.matricula;
 
-import hub.forum.api.domain.curso.CursoRepository;
-import hub.forum.api.domain.curso.DadosInscricaoCurso;
-import hub.forum.api.domain.usuario.UsuarioRepository;
+import hub.forum.api.domain.curso.repository.CursoRepository;
+import hub.forum.api.domain.curso.dto.DadosInscricaoCurso;
+import hub.forum.api.domain.usuario.repository.UsuarioRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,7 @@ public class MatriculaService {
         log.info("Renovando matrícula do estudante ID: {}", estudanteID);
         matricula.renovarMatricula();
 
+        matriculaRepository.save(matricula);
         log.info("Matrícula renovada com sucesso para estudante ID: {}", estudanteID);
         return new DadosDetalhamentoMatricula(matricula);
     }
@@ -68,6 +69,8 @@ public class MatriculaService {
         }
 
         matricula.adicionarCurso(curso);
+        cursoRepository.save(curso);
+
         log.info("Estudante {} inscrito no curso {}", dados.estudanteID(), dados.cursoID());
     }
 }

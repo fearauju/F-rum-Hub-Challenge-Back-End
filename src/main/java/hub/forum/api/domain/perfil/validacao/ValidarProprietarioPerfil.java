@@ -1,7 +1,6 @@
 package hub.forum.api.domain.perfil.validacao;
 
-import hub.forum.api.domain.perfil.PerfilRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import hub.forum.api.infra.security.SegurancaService;
 import lombok.extern.slf4j.Slf4j;

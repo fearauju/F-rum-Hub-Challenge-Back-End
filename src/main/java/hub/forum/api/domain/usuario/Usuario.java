@@ -1,6 +1,7 @@
 package hub.forum.api.domain.usuario;
 
 import hub.forum.api.domain.perfil.Perfil;
+import hub.forum.api.domain.usuario.dto.DadosAtualizacaoLogin;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -29,8 +30,7 @@ public abstract class Usuario implements UserDetails {
     //O cadastro de usuários será feito de forma interna, via terminal. Senha, em formato hash --> BCrypt.
     //Principalmente as subclasses conforme o tipo de usuário. Verifique o Enum TipoUsuario.
 
-    @Version //tentar evitar conflito de concorrência.
-    @Column(name = "version", nullable = false)
+    @Version //para tentar evitar problemas de conflitos de concorrência
     private Long version = 0L;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +61,7 @@ public abstract class Usuario implements UserDetails {
     private boolean ativo = true;
 
 
-    @OneToOne(mappedBy = "usuario", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.EAGER)
     @JoinColumn(name = "perfil_id")
     private Perfil perfil;
 
@@ -82,6 +82,12 @@ public abstract class Usuario implements UserDetails {
             log.info("Resetando tentativas de login para usuário: {}", this.login);
             this.tentativasLogin = 0;
         }
+    }
+
+    public void atualizarRegistroLogin() {
+
+        this.ultimoLogin = LocalDateTime.now();
+        resetarTentativasLogin();
     }
 
     public void inativarUsuario() {
@@ -144,5 +150,4 @@ public abstract class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

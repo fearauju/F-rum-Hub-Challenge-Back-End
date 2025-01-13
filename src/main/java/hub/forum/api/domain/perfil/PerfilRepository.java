@@ -19,5 +19,4 @@ public interface PerfilRepository extends JpaRepository<Perfil,Long> {
 
     boolean existsByIdAndUsuarioId(Long perfilID, Long usuarioID);
 
-    Perfil findByNome(String nomePerfil);
 }

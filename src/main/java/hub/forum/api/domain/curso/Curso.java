@@ -1,11 +1,11 @@
 package hub.forum.api.domain.curso;
 
+import hub.forum.api.domain.curso.dto.DadosAtualizacaoCurso;
+import hub.forum.api.domain.curso.dto.DadoscadastroCurso;
 import hub.forum.api.domain.matricula.MatriculaCurso;
 import hub.forum.api.domain.topico.Topico;
 import hub.forum.api.domain.formacao.Formacao;
-import hub.forum.api.domain.matricula.Matricula;
-import hub.forum.api.domain.usuario.Estudante;
-import hub.forum.api.domain.usuario.Professor;
+import hub.forum.api.domain.usuario.professor.Professor;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,22 +37,22 @@ public class Curso {
     @Column(columnDefinition = "DECIMAL(2,1) DEFAULT 0.0")
     private Double avaliacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "formacao_id")
     private Formacao formacao;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
-            name = "curso_professores",
+            name = "curso_professor",
             joinColumns = @JoinColumn(name = "curso_id"),
             inverseJoinColumns = @JoinColumn(name = "professor_id")
     )
     private List<Professor> professores = new ArrayList<>();
 
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "curso")
     private List<Topico> topico = new ArrayList<>();
 
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "curso")
     private List<MatriculaCurso> matriculaCursos = new ArrayList<>();
 
     public void cadastrarCurso(DadoscadastroCurso dados, Formacao formacao) {

@@ -25,7 +25,7 @@ public interface TopicoRepository extends JpaRepository<Topico,Long> {
         SELECT t.resolvido
         FROM Topico t
         WHERE t.id = :topicoId
-        AND t.resolvido = false
+        AND t.resolvido = true
         """)
     boolean topicoResolvido(Long topicoId);
 

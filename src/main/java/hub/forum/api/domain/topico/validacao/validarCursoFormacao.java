@@ -1,7 +1,7 @@
 package hub.forum.api.domain.topico.validacao;
 
-import hub.forum.api.domain.curso.CursoRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.curso.repository.CursoRepository;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -32,7 +32,7 @@ public class Resposta {
     private Topico topico;
 
     @ManyToOne(optional = false) // Cada resposta tem um único autor
-    @JoinColumn(name = "autor_id") // O autor está relacionado à tabela "usuarios"
+    @JoinColumn(name = "autor_id")
     private Usuario autor;
 
     public void salvarResposta(DadosRegistroReposta dados, Topico topico, Usuario autor) {

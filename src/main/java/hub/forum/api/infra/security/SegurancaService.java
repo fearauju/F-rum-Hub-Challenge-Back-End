@@ -1,6 +1,6 @@
 package hub.forum.api.infra.security;
 
-import hub.forum.api.domain.curso.CursoRepository;
+import hub.forum.api.domain.curso.repository.CursoRepository;
 import hub.forum.api.domain.perfil.PerfilRepository;
 import hub.forum.api.domain.resposta.RespostaRepository;
 import hub.forum.api.domain.topico.TopicoRepository;

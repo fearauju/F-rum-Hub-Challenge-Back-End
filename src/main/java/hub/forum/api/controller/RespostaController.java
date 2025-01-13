@@ -44,17 +44,17 @@ public class RespostaController {
 
 
     @GetMapping("/{topicoID}/respostas")
-    public ResponseEntity<Page<DadosListagemResposta>> listarRespostas(@PageableDefault(sort = {"dataCriacao"})
+    public ResponseEntity<Page<DadosListagemResposta>> listarRespostasDoTopico(@PageableDefault(sort = {"dataCriacao"})
                                                                        Pageable paginacao, @PathVariable Long topicoID){
 
-        var respostasTopico = service.listarRespostas(topicoID,paginacao);
+        var respostasTopico = service.listarRespostasDoTopico(topicoID,paginacao);
         return ResponseEntity.ok(respostasTopico);
     }
 
 
     @PutMapping("/{topicoID}/respostas/{respostaID}")
     @AutorizacaoEscolherResolvido
-    public ResponseEntity<?> marcarSolucao(@PathVariable Long topicoID, @PathVariable Long respostaID,
+    public ResponseEntity<?> marcarMelhorResposta(@PathVariable Long topicoID, @PathVariable Long respostaID,
                                            @Valid DadosFechamentoTopico dados) {
 
         log.debug("Marcando resposta {} como solução do tópico {}", respostaID, topicoID);

@@ -8,6 +8,7 @@ CREATE TABLE usuarios(
     tentativas_login INT DEFAULT 0,
     conta_bloqueada BOOLEAN DEFAULT FALSE,
     ativo TINYINT DEFAULT TRUE,
+    version BIGINT DEFAULT 0 NOT NULL,
 
     PRIMARY KEY(id)
 );

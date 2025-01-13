@@ -2,7 +2,7 @@ package hub.forum.api.domain.resposta.validacao;
 
 import hub.forum.api.domain.resposta.DadosValidacaoResposta;
 import hub.forum.api.domain.resposta.RespostaRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import hub.forum.api.infra.security.SegurancaService;
 import org.springframework.beans.factory.annotation.Autowired;

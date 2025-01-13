@@ -9,7 +9,6 @@ public enum AreaFormacao {
     IA,
     INOVACAO_E_GESTAO,
     MOBILE,
-    PROGRAMACAO,
+    BACK_END,
     UX_DESIGN
-
 }

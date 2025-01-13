@@ -33,7 +33,7 @@ public class Topico {
     private boolean resolvido;
 
     @ManyToOne
-    @JoinColumn(name = "cursoID")
+    @JoinColumn(name = "curso_id")
     private Curso curso;
 
     @ManyToOne(optional = false) // Cada tópico tem um único autor

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.JobExecutionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,7 +136,7 @@ public class TratadorDeErros {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+    public ResponseEntity<String> tratarErroIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -158,22 +159,30 @@ public class TratadorDeErros {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        log.error("Erro de integridade de dados: {}", ex.getMessage());
-
-        if (ex.getMessage().contains("usuarios.login")) {
-            return "Este email já está em uso por outro usuário";
-        }
-
-        return "Erro de integridade de dados";
+    public ResponseEntity<String> ErroDeIntegridadeDeDados(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<String> handleOptimisticLockingException(ObjectOptimisticLockingFailureException ex) {
+    public ResponseEntity<String> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflito de atualização. Por favor, tente novamente.");
+    }
+
+
+    @ExceptionHandler(JobExecutionException.class)
+    public ResponseEntity<String> handleJobExecutionException(JobExecutionException ex) {
+        log.error("Erro na execução do job", ex);
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body("Conflito de atualização. Por favor, tente novamente.");
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro no processamento em lote: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(BatchProcessingException.class)
+    public ResponseEntity<String> handleBatchProcessingException(BatchProcessingException ex) {
+        log.error("Erro no processamento batch", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro no processamento: " + ex.getMessage());
     }
 }
 

@@ -1,10 +1,11 @@
 package hub.forum.api.domain.topico;
 
-import hub.forum.api.domain.curso.CursoRepository;
+import hub.forum.api.domain.curso.repository.CursoRepository;
 import hub.forum.api.domain.topico.validacao.DadosValidacaoTopico;
 import hub.forum.api.domain.usuario.TipoUsuario;
-import hub.forum.api.domain.usuario.UsuarioRepository;
-import hub.forum.api.domain.validacao.ValidadorBase;
+import hub.forum.api.domain.usuario.repository.UsuarioRepository;
+import hub.forum.api.domain.usuario.suporte.SuporteRepository;
+import hub.forum.api.domain.util.ValidadorBase;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -29,6 +30,9 @@ public class TopicoService {
 
     @Autowired
     private CursoRepository cursoRepository;
+
+    @Autowired
+    private SuporteRepository suporteRepository;
 
     @Autowired
     private List<ValidadorBase<DadosValidacaoTopico>> validadores;
@@ -176,7 +180,7 @@ public class TopicoService {
 
       if(usuario.obterTipoUsuario() == TipoUsuario.SUPORTE){
 
-         var suporte = usuarioRepository.findUsuarioSuporte(usuario.getId());
+         var suporte = suporteRepository.findUsuarioSuporte(usuario.getId());
          suporte.adicionarCasosResolvidos(dados, suporte);
           usuarioRepository.save(suporte);
       }

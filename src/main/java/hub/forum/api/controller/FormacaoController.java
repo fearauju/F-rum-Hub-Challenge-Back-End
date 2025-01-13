@@ -1,8 +1,14 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.formacao.*;
+import hub.forum.api.domain.formacao.dto.DadosAtualizacaoFormacao;
+import hub.forum.api.domain.formacao.dto.DadosCadastroFormacao;
+import hub.forum.api.domain.formacao.dto.DadosDetalhamentoFormacao;
+import hub.forum.api.domain.formacao.dto.DadosListagemFormacao;
+import hub.forum.api.domain.formacao.service.FormacaoService;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarFormacao;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarFormacao;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +21,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/formacoes")
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Formações", description = "Gerenciamento de formações das Escolas")
 @Slf4j
 public class FormacaoController {
 
    @Autowired
    private FormacaoService service;
 
-    @PostMapping("/cadastrar")
+    @PostMapping("/cadastrar_formacao")
     @AutorizacaoCadastrarFormacao
-    public ResponseEntity<DadosDetalhamentoFormacao> cadastrar(
+    public ResponseEntity<DadosDetalhamentoFormacao> cadastrarFormacao(
             @RequestBody @Valid DadosCadastroFormacao dados,
             UriComponentsBuilder uriBuilder) {
 
@@ -31,10 +39,10 @@ public class FormacaoController {
         var formacao = service.cadastrarFormacao(dados);
 
         var uri = uriBuilder.path("/formacoes/{id}")
-                .buildAndExpand(formacao.getId())
+                .buildAndExpand(formacao.id())
                 .toUri();
 
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoFormacao(formacao));
+        return ResponseEntity.created(uri).body(formacao);
     }
 
     @GetMapping

@@ -20,7 +20,7 @@ public class Escola {
     @Column(unique = true, nullable = false)
     private String nomeEscola;
 
-    @OneToMany(mappedBy = "escola", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "escola", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OrderBy("nome ASC")
     private List<Formacao> formacao;
 

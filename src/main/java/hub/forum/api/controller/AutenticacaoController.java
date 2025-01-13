@@ -1,6 +1,6 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.usuario.DadosAutenticacao;
+import hub.forum.api.domain.usuario.dto.DadosAutenticacao;
 import hub.forum.api.domain.usuario.Usuario;
 import hub.forum.api.infra.security.DadosTokenJWT;
 import hub.forum.api.infra.security.RateLimitService;

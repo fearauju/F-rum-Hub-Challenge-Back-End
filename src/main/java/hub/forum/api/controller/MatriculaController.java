@@ -1,6 +1,6 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.curso.DadosInscricaoCurso;
+import hub.forum.api.domain.curso.dto.DadosInscricaoCurso;
 import hub.forum.api.domain.matricula.DadosDetalhamentoMatricula;
 import hub.forum.api.domain.matricula.MatriculaService;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoInscreverCurso;
