@@ -56,12 +56,12 @@ API REST desenvolvida para gerenciar um fórum educacional, permitindo interaç�
 ## Acesse a documentação
 Swagger UI: http://localhost:8080/swagger-ui/index.html
 
+---
+
 ## ✒️ Autor
 [Luiz Felipe]
 
 ---
-
-⌨️ com ❤️ por [Luiz Felipe] 😊
 
 ## 🚀 Como Executar
 
@@ -143,6 +143,10 @@ Para facilitar os testes, disponibilizamos um arquivo SQL com dados iniciais:
    - Verificar estatísticas no Controller de Tópicos
 
 Estou trabalhando nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Em geral o projeto teve que ser remodelado algumas vezes, o que causa erros nos relacionamentos entre as entidades. Espero não ter deixade algum erro grosseiro passar, ainda falta algumas coisas para concluir, mas a aprte principal parece estar funconando. Espero que gostem.
+
+---
+
+⌨️ com ❤️ por [Luiz Felipe] 😊
 
 
 
