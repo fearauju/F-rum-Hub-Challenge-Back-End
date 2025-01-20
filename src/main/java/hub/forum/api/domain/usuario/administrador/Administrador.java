@@ -2,34 +2,39 @@ package hub.forum.api.domain.usuario.administrador;
 
 import hub.forum.api.domain.usuario.TipoUsuario;
 import hub.forum.api.domain.usuario.Usuario;
-import hub.forum.api.domain.util.ConverterListaDeString;
+import hub.forum.api.domain.usuario.administrador.dto.DadosRegistroAcao;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "administradores")
 @Getter
-@Setter
-@DiscriminatorValue("ADMINISTRADOR")
-@Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 public class Administrador extends Usuario {
 
-    @Column(name = "acoes_executadas")
-    @Convert(converter = ConverterListaDeString.class)
-    private List<String> acoesExecutadas;
+    @Id
+    private Long id;
 
-    @Column(name = "data_acao_executada")
-    private LocalDateTime DataAcaoExecutada;
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Usuario usuario;
 
-    @Override
+    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
+    private List<RegistroAcaoAdmin> acoesExecutadas = new ArrayList<>();
+
+    @Transient
     public TipoUsuario obterTipoUsuario() {
-        log.debug("Obtendo tipo de usuário para Administrador: {}", TipoUsuario.ADMINISTRADOR);
         return TipoUsuario.ADMINISTRADOR;
     }
-    // realiza as alterações internas no sistema
+
+    public void registrarAcao(DadosRegistroAcao dados) {
+        var registro = new RegistroAcaoAdmin(this, dados.acoesExecutadas(), dados.detalhes().trim());
+        this.acoesExecutadas.add(registro);
+    }
 }

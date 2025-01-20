@@ -1,7 +1,7 @@
 package hub.forum.api.domain.formacao.dto;
 
 import hub.forum.api.domain.curso.dto.DadosCursosFormacao;
-import hub.forum.api.domain.formacao.AreaFormacao;
+import hub.forum.api.domain.escola.AreaFormacao;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public record DadosCadastroFormacao(
 
         @NotNull(message = "O id da escola é obrigatório")
-        Long escolaID,
+        Long escolaId,
 
         @NotBlank(message = "O nome da formação é obrigatório")
         @Pattern(

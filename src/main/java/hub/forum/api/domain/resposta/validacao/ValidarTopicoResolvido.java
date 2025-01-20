@@ -1,24 +1,25 @@
 package hub.forum.api.domain.resposta.validacao;
 
-import hub.forum.api.domain.resposta.DadosValidacaoResposta;
-import hub.forum.api.domain.topico.TopicoRepository;
-import hub.forum.api.domain.util.ValidadorBase;
+import hub.forum.api.domain.resposta.OperacaoResposta;
+import hub.forum.api.domain.resposta.dto.DadosValidacaoResposta;
+import hub.forum.api.domain.topico.repository.TopicoRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidarTopicoResolvido implements ValidadorBase<DadosValidacaoResposta> {
-
+public class ValidarTopicoResolvido implements ValidadorResposta {
     @Autowired
     private TopicoRepository topicoRepository;
 
     @Override
-    public void validar(DadosValidacaoResposta dados) {
+    public void validar(DadosValidacaoResposta dados, OperacaoResposta operacao) {
 
-        var topico = topicoRepository.getReferenceById(dados.topicoId());
+        if(operacao == OperacaoResposta.CADASTRAR){
+            return;
+        }
 
-        if (topico.isResolvido()) {
+        if (topicoRepository.topicoResolvido(dados.topicoId())) {
             throw new ValidacaoException("Tópico já está resolvido");
         }
     }

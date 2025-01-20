@@ -1,10 +1,10 @@
 package hub.forum.api.domain.perfil.validacao;
 
-import java.time.LocalDate;
+import hub.forum.api.domain.usuario.Usuario;
 
 public record DadosValidacaoPerfil(
         String nome,
-        LocalDate dataNascimento,
         String descricaoPessoal,
-        Long usuarioID
+        Long usuarioId,
+        Usuario usuarioLogado
 ) {}

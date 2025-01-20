@@ -3,29 +3,34 @@ package hub.forum.api.domain.usuario.professor;
 import hub.forum.api.domain.curso.Curso;
 import hub.forum.api.domain.usuario.TipoUsuario;
 import hub.forum.api.domain.usuario.Usuario;
+import hub.forum.api.domain.usuario.professor.dto.DadosAtualizacaoProfessor;
+import hub.forum.api.domain.usuario.professor.dto.DadosCadastroProfessor;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "professores")
 @DiscriminatorValue("PROFESSOR")
-@PrimaryKeyJoinColumn(name = "id")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Slf4j
-public class Professor extends Usuario {
+public class Professor {
+
+    @Id
+    private Long id; // Mesmo ID do usuário
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Usuario usuario;
 
     @ElementCollection
     @CollectionTable(
@@ -42,68 +47,78 @@ public class Professor extends Usuario {
     private Integer anosExperiencia;
 
     @Column(name = "data_de_admissao")
-    private LocalDateTime dataDeAdmissao;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "professor_cursos_lecionados",
-            joinColumns = @JoinColumn(name = "professor_id")
-    )
-    @Column(name = "curso")
-    private Set<String> cursosLecionados = new HashSet<>();
-
-
-    @Column(name = "total_horas_lecionadas")
-    private Long totalHorasLecionadas = 0L; // Alterado para Long para evitar problemas de conversão
+    private LocalDate dataDeAdmissao;
 
     @ManyToMany
     @JoinTable(
-            name = "curso_professor",
+            name = "cursos_professores",
             joinColumns = @JoinColumn(name = "professor_id"),
             inverseJoinColumns = @JoinColumn(name = "curso_id")
     )
-    private List<Curso> cursos = new ArrayList<>();
+    private Set<Curso> cursosLecionados = new HashSet<>();
 
-    @Override
-    public TipoUsuario obterTipoUsuario() {
-        return TipoUsuario.PROFESSOR;
-    }
+    @Column(name = "total_horas_lecionadas")
+    private Long totalHorasLecionadas = 0L;
 
     @PostLoad //tentar inicializar as coleções adequadamente
     private void inicializarColecoes() {
         if (especializacoes == null) {
             especializacoes = new HashSet<>();
         }
-        if (cursos == null) {
-            cursos = new ArrayList<>();
-        }
-        if (totalHorasLecionadas == null) {
-            totalHorasLecionadas = 0L; // Garantir que nunca seja null
+
+        if (cursosLecionados == null) {
+            cursosLecionados = new HashSet<>();
         }
     }
 
     public void cadastrarProfessor(DadosCadastroProfessor dados) {
         // Converter List para Set
         this.especializacoes = new HashSet<>(dados.especializacoes());
-        this.titularidadeAcademica = dados.titularidade_academica();
-        this.anosExperiencia = dados.anos_experiencia();
-        this.dataDeAdmissao = dados.data_admissao().atStartOfDay(); // converte LocalDate para LocalDateTime
+        this.titularidadeAcademica = dados.titularidadeAcademica().trim();
+        this.anosExperiencia = dados.anosExperiencia();
+        this.dataDeAdmissao = dados.dataAdmissao();
     }
 
-    public void adicionarCurso(String nomeCurso, Duration duracao) {
-        this.cursosLecionados.add(nomeCurso);
-        this.totalHorasLecionadas += duracao.toHours();
+    public void adicionarCurso(Curso curso, Duration duracao) {
+        if (curso == null) return;
+
+        if (this.cursosLecionados.add(curso)) { // `add` retorna false se já existe
+            this.totalHorasLecionadas += duracao.toHours();
+            curso.adicionarProfessor(this); // Sincroniza do outro lado
+        }
+    }
+
+    public void atualizar(DadosAtualizacaoProfessor dados) {
+
+        if (dados.especializacoes() != null) {
+            this.especializacoes.addAll(dados.especializacoes());
+        }
+
+        if (dados.titularidadeAcademica() != null) {
+            this.titularidadeAcademica = dados.titularidadeAcademica().trim();
+        }
+    }
+
+
+    @Transient
+    public TipoUsuario obterTipoUsuario() {
+        return TipoUsuario.PROFESSOR;
     }
 
 
     @Override
     public String toString() {
+        String nomePerfil = "Não possui perfil cadastrado";
+        if (usuario != null && usuario.getPerfil() != null && usuario.getPerfil().getNome() != null) {
+            nomePerfil = usuario.getPerfil().getNome();
+        }
+
         return "Professor{" +
                 "id= " + getId() +
-                "login= " + getLogin() +
-                "username= " + getUsername() +
-                "nome do perfil= " + getPerfil().getNome() +
-                "especializacoes=" + especializacoes +
+                ", login= " + (usuario != null ? usuario.getLogin() : "N/A") +
+                ", username= " + (usuario != null ? usuario.getUsername() : "N/A") +
+                ", nome do perfil= " + nomePerfil +
+                ", especializacoes=" + especializacoes +
                 ", titularidadeAcademica='" + titularidadeAcademica + '\'' +
                 ", cursosLecionados=" + cursosLecionados +
                 ", totalHorasLecionadas=" + totalHorasLecionadas +
@@ -112,3 +127,5 @@ public class Professor extends Usuario {
                 '}';
     }
 }
+
+

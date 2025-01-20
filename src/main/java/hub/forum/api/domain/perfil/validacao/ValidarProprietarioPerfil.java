@@ -1,27 +1,23 @@
 package hub.forum.api.domain.perfil.validacao;
 
-import hub.forum.api.domain.util.ValidadorBase;
+import hub.forum.api.domain.perfil.OperacaoPerfil;
 import hub.forum.api.infra.exceptions.ValidacaoException;
-import hub.forum.api.infra.security.SegurancaService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class ValidarProprietarioPerfil implements ValidadorBase<DadosValidacaoPerfil> {
-
-    @Autowired
-    private SegurancaService segurancaService;
+public class ValidarProprietarioPerfil implements ValidadorPerfil<DadosValidacaoPerfil> {
 
     @Override
-    public void validar(DadosValidacaoPerfil dados) {
-
-        if (!segurancaService.getUsuarioLogado().getId().equals(dados.usuarioID())) {
-
-            log.warn("Usuário {} tentou alterar os dados de perfil do usuário com ID: {}",
-                    segurancaService.getUsuarioLogado().getLogin(), dados.usuarioID());
-            throw new ValidacaoException("Usuário não pode fazer alterações neste perfil");
+    public void validar(DadosValidacaoPerfil dados, OperacaoPerfil operacao) {
+        if (!dados.usuarioLogado().getId().equals(dados.usuarioId())) {
+            var acao = operacao == OperacaoPerfil.CRIACAO ? "criar" : "atualizar";
+            log.warn("Usuário {} tentou {} perfil de outro usuário ID: {}",
+                    dados.usuarioLogado().getLogin(),
+                    acao,
+                    dados.usuarioId());
+            throw new ValidacaoException("Não é permitido " + acao + " perfil de outro usuário");
         }
     }
 }

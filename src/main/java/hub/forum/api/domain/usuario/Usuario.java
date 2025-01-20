@@ -15,27 +15,22 @@ import java.util.Collection;
 import java.util.List;
 
 
-@Entity()
+@Entity
 @Table(name = "usuarios")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "tipo_usuario", discriminatorType = DiscriminatorType.STRING)
 @Slf4j
-public abstract class Usuario implements UserDetails {
+public class Usuario implements UserDetails {
 
-    //O cadastro de usuários será feito de forma interna, via terminal. Senha, em formato hash --> BCrypt.
-    //Principalmente as subclasses conforme o tipo de usuário. Verifique o Enum TipoUsuario.
-
-    @Version //para tentar evitar problemas de conflitos de concorrência
+    @Version
     private Long version = 0L;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @Column(unique = true, nullable = false)
     @Email
@@ -45,54 +40,44 @@ public abstract class Usuario implements UserDetails {
     @NotBlank
     private String senha;
 
-    @Transient
-    public abstract TipoUsuario obterTipoUsuario();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_usuario", nullable = false, insertable = false, updatable = false)
+    private TipoUsuario tipoUsuario;
 
     @Column(name = "ultimo_login", nullable = false)
     private LocalDateTime ultimoLogin;
 
-    @Column(name = "tentativas_login")
-    private Integer tentativasLogin = 0;
-
-    @Column(name = "conta_bloqueada")
-    private boolean contaBloqueada = false;
-
-    @Column(name = "ativo",nullable = false)
+    @Column(name = "ativo", nullable = false)
     private boolean ativo = true;
 
+    @Column(name = "bloqueado_permanente", nullable = false)
+    private boolean bloqueadoPermanente = false;
 
-    @OneToOne(mappedBy = "usuario", fetch = FetchType.EAGER)
-    @JoinColumn(name = "perfil_id")
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
     private Perfil perfil;
 
-
-    public void incrementarTentativasLogin() {
-
-        this.tentativasLogin++;
-        if (this.tentativasLogin >= 6) {
-            this.contaBloqueada = true;
-            log.warn("Conta bloqueada após {} tentativas falhas: {}",
-                    this.tentativasLogin, this.login);
-        }
+    @Transient
+    public TipoUsuario obterTipoUsuario() {
+        return tipoUsuario;
     }
 
-    public void resetarTentativasLogin() {
-
-        if (this.tentativasLogin > 0) {
-            log.info("Resetando tentativas de login para usuário: {}", this.login);
-            this.tentativasLogin = 0;
-        }
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
+        perfil.setUsuario(this);
     }
 
     public void atualizarRegistroLogin() {
 
         this.ultimoLogin = LocalDateTime.now();
-        resetarTentativasLogin();
     }
 
     public void inativarUsuario() {
 
         this.ativo = false;
+    }
+
+    public void reativar() {
+        this.ativo = true;
     }
 
     public void atualizarDadosLogin(DadosAtualizacaoLogin dados) {
@@ -102,12 +87,11 @@ public abstract class Usuario implements UserDetails {
         }
 
         if (dados.senha() != null) {
-            this.senha = dados.senha();
+            this.senha = dados.senha().trim();
         }
 
         log.debug("Dados de login atualizados para usuário ID: {}", this.id);
     }
-
 
     //métodos da interface
     @Override
@@ -138,7 +122,7 @@ public abstract class Usuario implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !contaBloqueada;
+        return !bloqueadoPermanente;
     }
 
     @Override
@@ -150,4 +134,5 @@ public abstract class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

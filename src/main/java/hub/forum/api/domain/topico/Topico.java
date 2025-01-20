@@ -2,16 +2,19 @@ package hub.forum.api.domain.topico;
 
 import hub.forum.api.domain.curso.Curso;
 import hub.forum.api.domain.resposta.Resposta;
+import hub.forum.api.domain.topico.dto.DadosAtualizacaoTopico;
+import hub.forum.api.domain.topico.dto.DadosCadastroTopico;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "Topico")
-@Table(name = "topicos")
+@Table(name = "topicos", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"titulo", "mensagem"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,44 +25,47 @@ public class Topico {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true)
+    @Column(nullable = false, length = 100)
     private String titulo;
 
-    @Column(unique = true)
+    @Column(nullable = false, length = 255)
     private String mensagem;
 
+    @Column(nullable = false)
     private LocalDateTime dataCriacao;
 
+    @Column(columnDefinition = "TINYINT")
     private boolean resolvido;
 
     @ManyToOne
-    @JoinColumn(name = "curso_id")
+    @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
-    @ManyToOne(optional = false) // Cada tópico tem um único autor
-    @JoinColumn(name = "autor_id") // O autor está relacionado à tabela "usuarios"
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario autor;
 
-    @OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
-    private List<Resposta> resposta = new ArrayList<>();
+    @OneToMany(mappedBy = "topico", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resposta> respostas = new ArrayList<>();
 
-    public void cadastrarTopico(@Valid DadosCadastroTopico dados, Curso curso, Usuario autor) {
+    public void cadastrarTopico(DadosCadastroTopico dados, Curso curso, Usuario autor) {
 
-        this.titulo = dados.titulo();
-        this.mensagem = dados.mensagem();
+        this.titulo = dados.titulo().trim();
+        this.mensagem = dados.mensagem().trim();
         this.dataCriacao = LocalDateTime.now();
         this.curso = curso;
         this.autor = autor;
-        this.resolvido = false; //fechar tópico --> usuário suporte ou administrador
+        this.resolvido = false; // Fechar tópico --> usuário suporte ou administrador
     }
+
     public void atualizarTopico(DadosAtualizacaoTopico dados) {
 
         if(dados.titulo() != null){
-            this.titulo = dados.titulo();
+            this.titulo = dados.titulo().trim();
         }
 
         if(dados.mensagem() != null){
-            this.mensagem = dados.mensagem();
+            this.mensagem = dados.mensagem().trim();
         }
     }
 

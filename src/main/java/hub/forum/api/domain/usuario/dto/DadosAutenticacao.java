@@ -7,7 +7,7 @@ public record DadosAutenticacao(
         @NotBlank(message = "O e-mail é obrigatório")
         @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$",
                 message = "Formato de email inválido")
-        @Size(min = 3, max = 20,
+        @Size(min = 5, max = 100,
                 message = "Email deve ter entre 5 e 100 caracteres")
         String login,
 

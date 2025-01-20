@@ -48,6 +48,7 @@ public class Securityconfigurations {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .build();
+
     }
 
     @Bean

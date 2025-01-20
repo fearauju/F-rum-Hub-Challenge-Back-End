@@ -1,8 +1,7 @@
 CREATE TABLE matriculas(
-
     id BIGINT NOT NULL AUTO_INCREMENT,
-    numero_da_matricula BIGINT UNIQUE NOT NULL,
-    ativo TINYINT DEFAULT TRUE,
+    numero_matricula BIGINT UNIQUE NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
     data_assinatura DATETIME  NOT NULL,
     data_expiracao_assinatura DATETIME NOT NULL,
     formacao_id BIGINT NOT NULL,

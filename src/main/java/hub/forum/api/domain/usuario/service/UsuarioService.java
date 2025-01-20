@@ -1,18 +1,19 @@
 package hub.forum.api.domain.usuario.service;
 
+import hub.forum.api.domain.usuario.OperacaoDominio;
+import hub.forum.api.domain.usuario.dto.DadosDetalhamentoUsuarioInativo;
 import hub.forum.api.domain.usuario.repository.UsuarioRepository;
 import hub.forum.api.domain.usuario.dto.DadosAtualizacaoLogin;
-import hub.forum.api.domain.usuario.dto.DadosExclusaoUsuario;
-import hub.forum.api.domain.usuario.estudante.DadosCadastroEstudante;
-import hub.forum.api.domain.usuario.estudante.DadosDetalhamentoEstudante;
-import hub.forum.api.domain.usuario.validacao_regras.DadosValidacaoUsuario;
-import hub.forum.api.domain.util.ValidadorBase;
+import hub.forum.api.domain.usuario.validacao.DadosValidacaoUsuario;
+import hub.forum.api.domain.usuario.validacao.ValidadorBase;
+import hub.forum.api.domain.util.PageResponse;
 import hub.forum.api.infra.exceptions.ValidacaoException;
+import hub.forum.api.infra.security.RateLimitService;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,58 +33,56 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private RateLimitService rateLimitService;
+
+    @Autowired
     private List<ValidadorBase<DadosValidacaoUsuario>> validadores;
 
 
     @Transactional
-    public DadosDetalhamentoEstudante cadastrarEstudante(Long id, @Valid DadosCadastroEstudante dados) {
-        return null;
-    }
+    public void inativarUsuario(Long usuarioId) {
 
+        log.debug("Iniciada operação para inativar usuário ID: {}", usuarioId);
 
-    @Transactional
-    public void inativarUsuario(DadosExclusaoUsuario dados) {
-
-        log.debug("Iniciada operação para inativar usuário ID: {}", dados.usuarioInativoID());
-
-        var usuarioParaInativar = usuarioRepository.findByIdAndAtivoTrue(dados.usuarioInativoID());
+        var usuarioParaInativar = usuarioRepository.findByIdAndAtivoTrue(usuarioId);
 
         if (usuarioParaInativar == null){
-            log.error("Não foi encontrado usuário com o id {}",dados.usuarioInativoID());
-            throw new ValidacaoException("Usuário não encontrado");
+            log.error("Não foi encontrado usuário com o id {}", usuarioId);
+            throw new ValidacaoException("Usuário não encontrado ou ainda é um usuário ativo");
         }
+
+        log.info("Iniciando a validação das regras");
         var dadosValidacao = new DadosValidacaoUsuario(
-                usuarioParaInativar.getId(),
-                usuarioParaInativar.getLogin(),
-                usuarioParaInativar.obterTipoUsuario()
+                usuarioId, null, null, null, null, OperacaoDominio.INATIVACAO
         );
 
-        validadores.forEach(v -> v.validar(dadosValidacao));
+        validadores.forEach(v -> v.validar(dadosValidacao, OperacaoDominio.INATIVACAO));
 
+        log.info("realizando exclusão lógica do usuário com ID {}", usuarioParaInativar.getId());
         usuarioParaInativar.inativarUsuario();
-
-        log.info("Usuário com ID {} foi inativado ", dados.usuarioInativoID());
 
         usuarioRepository.save(usuarioParaInativar);
     }
 
-
     @Transactional
-    public void registrarTentativaLoginFalha(String login) {
+    public void reativar(Long usuarioInativoId) {
 
-        var usuario = usuarioRepository.findByLoginAndAtivoTrue(login);
+        var dadosValidacao = new DadosValidacaoUsuario(
+                usuarioInativoId, null, null, null, null, OperacaoDominio.REATIVACAO
+        );
 
-        if(usuario == null){
-            log.error("Usuário não encontrado para o login: {}", login);
-            throw new UsernameNotFoundException("Usuário não encontrado");
+        validadores.forEach(v -> v.validar(dadosValidacao, OperacaoDominio.REATIVACAO));
+
+        log.info("Buscando usuário inativo");
+        var usuarioInativo = usuarioRepository.findByIdAndAtivoFalse(usuarioInativoId);
+
+        if(usuarioInativo == null){
+            throw new ValidacaoException("Usuário não encontrado");
         }
 
-            usuario.incrementarTentativasLogin();
-
-            log.warn("Tentativa de login falha para usuário: {}. Total: {}",
-                    login, usuario.getTentativasLogin());
-
-        usuarioRepository.save(usuario);
+        usuarioInativo.reativar();
+        usuarioRepository.save(usuarioInativo);
+        log.info("Usuário foi reativado com sucesso");
     }
 
     @Transactional
@@ -99,6 +98,7 @@ public class UsuarioService {
 
             // Atualizar campos
             usuario.atualizarRegistroLogin();
+            rateLimitService.resetarTentativas(usuario.getLogin());
 
             // O Spring/Hibernate gerenciará automaticamente o incremento da versão
             usuarioRepository.save(usuario);
@@ -112,42 +112,58 @@ public class UsuarioService {
     @Transactional
     public void desbloquearConta(Long usuarioId) {
 
+        var dadosValidacao = new DadosValidacaoUsuario(
+                usuarioId, null, null, null, null, OperacaoDominio.DESBLOQUEIO
+        );
+
+        validadores.forEach(v -> v.validar(dadosValidacao, OperacaoDominio.DESBLOQUEIO));
+
+        log.info("Iniciando processo de desbloqueio de conta para usuário ID: {}", usuarioId);
+
         var usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ValidacaoException("Usuário não encontrado"));
 
-        usuario.resetarTentativasLogin();
+        rateLimitService.desbloquearConta(usuario.getLogin());
 
-        log.info("Conta desbloqueada para usuário: {}", usuario.getLogin());
-
-        usuarioRepository.save(usuario);
+        log.info("Conta desbloqueada com sucesso para usuário: {}", usuario.getLogin());
     }
 
     @Transactional
-    public void atualizarDadosLogin(Long usuarioID, DadosAtualizacaoLogin dados ) {
+    public void atualizarDadosLogin(Long usuarioId, DadosAtualizacaoLogin dados ) {
 
-        log.info("Iniciando atualização de login para ID: {}", usuarioID);
+        if (dados.login() == null && dados.senha() == null) {
+            throw new ValidacaoException("Nenhum dado foi fornecido para atualização");
+        }
 
-        var usuario = usuarioRepository.findByIdAndAtivoTrue(usuarioID);
+        var usuario = usuarioRepository.findByIdAndAtivoTrue(usuarioId);
 
-        if(usuario == null){
-            log.error("Usuário não encontrado para o ID: {}", usuarioID);
+        if (usuario == null) {
+            log.error("Usuário não encontrado para o ID: {}", usuarioId);
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
 
-        try {
+        // Só criptografa a senha se ela foi fornecida
+        var dadosAtualizados = new DadosAtualizacaoLogin(
+                dados.login(),
+                dados.senha() != null ? passwordEncoder.encode(dados.senha()) : null
+        );
 
-            var dadosComSenhaCriptografada = new DadosAtualizacaoLogin(
-                    dados.login(),
-                    passwordEncoder.encode(dados.senha())
-            );
+        usuario.atualizarDadosLogin(dadosAtualizados);
+        usuarioRepository.save(usuario);
+        log.info("Dados atualizados com sucesso para usuário ID: {}", usuarioId);
 
-            usuario.atualizarDadosLogin(dadosComSenhaCriptografada);
-            usuarioRepository.save(usuario);
-            log.info("Dados atualizados com sucesso para usuário ID: {}", usuarioID);
+    }
 
-        } catch (Exception e) {
-            log.error("Erro ao atualizar dados: {}", e.getMessage(), e);
-            throw new ValidacaoException("Erro ao atualizar dados do usuário");
-        }
+    public PageResponse<DadosDetalhamentoUsuarioInativo> detalharUsuariosInativos(Pageable paginacao) {
+
+        log.debug("Listando usuários inativos. Página: {}, Tamanho: {}",
+                paginacao.getPageNumber(),
+                paginacao.getPageSize());
+
+        var page = usuarioRepository.findAllByAtivoFalse(paginacao)
+                .map(DadosDetalhamentoUsuarioInativo::new);
+
+        log.info("Encontrados {} professores", page.getTotalElements());
+        return new PageResponse<>(page);
     }
 }

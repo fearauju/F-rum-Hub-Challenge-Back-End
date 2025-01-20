@@ -17,6 +17,6 @@ public record DadosCursosFormacao(
         )
         String duracao,
 
-        List<String> nome_professor
+        List<String> nomeProfessor
 ) {
 }

@@ -1,6 +1,6 @@
 package hub.forum.api.domain.formacao.dto;
 
-import hub.forum.api.domain.formacao.AreaFormacao;
+import hub.forum.api.domain.escola.AreaFormacao;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 

@@ -1,58 +1,71 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.usuario.Usuario;
-import hub.forum.api.domain.usuario.professor.DadosCadastroProfessor;
-import hub.forum.api.domain.usuario.professor.DadosDetalhamentoProfessor;
-import hub.forum.api.domain.usuario.professor.ProfessorService;
+
+import hub.forum.api.domain.usuario.professor.dto.DadosAtualizacaoProfessor;
+import hub.forum.api.domain.usuario.professor.dto.DadosCadastroProfessor;
+import hub.forum.api.domain.usuario.professor.dto.DadosDetalhamentoProfessor;
+import hub.forum.api.domain.usuario.professor.service.ProfessorService;
+import hub.forum.api.domain.util.PageResponse;
+import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarProfessor;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarUsuarios;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoPesquisarPorUsuarios;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.transaction.Transactional;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/professores")
 @SecurityRequirement(name = "bearer-key")
+@Tag(name = "Professor", description = "Gerenciamento dos professores")
 @Slf4j
 public class ProfessorController {
 
     @Autowired
     private ProfessorService service;
 
-    @PostMapping("/{id}/cadastrar_professores")
-    @Transactional
+    @Operation(summary = "Cadastrar professor")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Professor cadastrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para cadastrar professor"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
+    @PostMapping("/{id}/cadastrar_professor")
     @AutorizacaoCadastrarUsuarios
     public ResponseEntity<DadosDetalhamentoProfessor> cadastrarProfessor(@PathVariable Long id,
                                                                          @RequestBody @Valid DadosCadastroProfessor dados,
                                                                          UriComponentsBuilder UriBuilder){
         var professor = service.cadastrarProfessor(id, dados);
-        var uri = UriBuilder.path("/cadastrar_professores/{id}").buildAndExpand(id).toUri();
+        var uri = UriBuilder.path("/professores/{id}").buildAndExpand(professor.id()).toUri();
         return ResponseEntity.created(uri).body(professor);
     }
 
-    @Operation(summary = "Lista equipe de professores",
-            description = "Retorna uma lista paginada dos professores")
-    @GetMapping("/professores")
+    @Operation(summary = "Listar professores")
+    @GetMapping
     @AutorizacaoPesquisarPorUsuarios
-    public ResponseEntity<Page<DadosDetalhamentoProfessor>> listarEquipeProfessores(
-            @PageableDefault(sort = "perfil.nome") Pageable paginacao,
-            @AuthenticationPrincipal Usuario usuarioLogado) {
+    public ResponseEntity<PageResponse<DadosDetalhamentoProfessor>> listarEquipeProfessores(
+            @PageableDefault(sort = "usuario.perfil.nome") Pageable paginacao) {
+        return ResponseEntity.ok(service.listarEquipeProfessores(paginacao));
+    }
 
-        log.debug("Listando equipe de professores. Solicitado por: {}", usuarioLogado.getLogin());
+    @PutMapping("{id}/atualizar")
+    @AutorizacaoAtualizarProfessor
+    public ResponseEntity<DadosDetalhamentoProfessor> atualizarCadastro(@RequestBody @Valid DadosAtualizacaoProfessor dados,
+                                                                        @PathVariable Long id){
 
-        var listaProfessores = service.listarEquipeProfessores(paginacao);
-        log.info("Retornando {} registros de professores", listaProfessores.getTotalElements());
+        log.info("Iniciando atualização dos dados do professor");
 
-        return ResponseEntity.ok(listaProfessores);
+        var professor = service.atualizarCadastro(dados, id);
+        return ResponseEntity.ok(professor);
     }
 }

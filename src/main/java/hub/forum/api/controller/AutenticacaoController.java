@@ -2,12 +2,17 @@ package hub.forum.api.controller;
 
 import hub.forum.api.domain.usuario.dto.DadosAutenticacao;
 import hub.forum.api.domain.usuario.Usuario;
+import hub.forum.api.domain.usuario.service.UsuarioService;
+import hub.forum.api.infra.exceptions.BloqueioPermanenteException;
+import hub.forum.api.infra.exceptions.BloqueioTemporarioException;
+import hub.forum.api.infra.exceptions.EstudanteSemMatriculaException;
 import hub.forum.api.infra.security.DadosTokenJWT;
 import hub.forum.api.infra.security.RateLimitService;
 import hub.forum.api.infra.security.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/login")
+@SecurityRequirement(name = "bearer-key")
 @Tag(name = "Autenticação", description = "Endpoints para autenticação de usuários")
 @Slf4j
 public class AutenticacaoController {
@@ -30,6 +36,9 @@ public class AutenticacaoController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Autowired
     private RateLimitService rateLimitService;
@@ -45,33 +54,24 @@ public class AutenticacaoController {
     public ResponseEntity<?> efetuarLogin(
             @RequestBody @Valid DadosAutenticacao dados) {
 
-        if (!rateLimitService.tryConsume(dados.login())) {
-            log.warn("Limite de tentativas excedido para o login: {}", dados.login());
-            return ResponseEntity
-                    .status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body("Muitas tentativas de login. Tente novamente em 10 minutos.");
-        }
-
         try {
-            log.debug("Tentativa de login para usuário: {}", dados.login());
+            // Verificação de rate limit
+            rateLimitService.tryConsume(dados.login());
 
-            var authenticationToken = new UsernamePasswordAuthenticationToken(
-                    dados.login(),
-                    dados.senha()
-            );
-
+            var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
             var authentication = authenticationManager.authenticate(authenticationToken);
-            var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
+            var usuario = (Usuario) authentication.getPrincipal();
 
-            log.info("Login bem-sucedido para usuário: {}", dados.login());
+            // Registra login bem-sucedido
+            usuarioService.registrarLoginSucesso(usuario.getLogin());
 
+            var tokenJWT = tokenService.gerarToken(usuario);
             return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
 
-        } catch (AuthenticationException e) {
-            log.error("Falha na autenticação para usuário: {}", dados.login());
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Credenciais inválidas");
+        }catch (AuthenticationException e) {
+            // Registra falha de autenticação
+            rateLimitService.registrarFalhaAutenticacao(dados.login());
+            throw e;
         }
     }
 }

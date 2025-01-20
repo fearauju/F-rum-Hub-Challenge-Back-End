@@ -5,9 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface CursoRepository extends JpaRepository<Curso,Long> {
@@ -15,36 +14,51 @@ public interface CursoRepository extends JpaRepository<Curso,Long> {
     @Query("""
         SELECT c
         FROM Curso c
-        WHERE c.formacao.id = :formacaoID
+        WHERE c.formacao.id = :formacaoId
         """)
     Page<Curso> findByFormacaoId(
-            @Param("formacaoId") Long formacaoID,
+            Long formacaoId,
             Pageable paginacao
     );
 
-        @Query("""
-        SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
-        FROM Curso c
-        JOIN Usuario u
-        WHERE c.id = :cursoID
-        AND u.id =: professorID
-        AND TYPE(u) = Professor
-        """)
-        boolean existsByIdAndProfessorId(
-                 Long cursoID,
-                 Long professorID
-        );
-
-
-    boolean existsByCursoIgnoreCase(String curso);
 
     @Query("""
-        SELECT c FROM Curso c
-        WHERE c.id = :cursoId AND c.formacao.id = :formacaoId
+        SELECT c
+        FROM Curso c
+        JOIN c.formacao f
+        WHERE c.id = :cursoId
+        AND f.id = :formacaoId
         """)
     Optional<Curso> findByIdAndFormacaoId(Long cursoId, Long formacaoId);
 
-    boolean existsByIdAndFormacaoId(Long cursoID, Long formacaoID);
+    @Query("""
+    SELECT CASE WHEN COUNT(c) = :totalProfessores THEN true ELSE false END
+    FROM Curso c
+    JOIN c.professores p
+    JOIN p.usuario u
+    WHERE c.id = :cursoId
+    AND p.id IN :professorIds
+    AND u.ativo = true
+    """)
+    boolean existsByIdAndProfessores(
+            Long cursoId,
+            Set<Long> professorIds,
+            long totalProfessores);
 
-    Curso findByCurso(String curso);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
+        FROM Curso c
+        JOIN c.professores p
+        WHERE c.id = :cursoId
+        AND p.id = :professorId
+        """)
+    boolean existsByIdAndProfessorId(Long cursoId, Long professorId); // trabalhar com coleção de professores
+
+    @Query("""
+    SELECT c FROM Curso c
+    JOIN FETCH c.formacao f
+    WHERE c.id = :cursoId
+""")
+    Optional<Curso> findByIdWithFormacao(Long cursoId);
 }

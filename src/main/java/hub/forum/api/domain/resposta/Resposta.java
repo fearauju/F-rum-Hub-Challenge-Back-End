@@ -1,5 +1,6 @@
 package hub.forum.api.domain.resposta;
 
+import hub.forum.api.domain.resposta.dto.DadosRegistroReposta;
 import hub.forum.api.domain.topico.Topico;
 import hub.forum.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
@@ -18,13 +19,13 @@ public class Resposta {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, length = 1000)
+    @Column(name = "mensagem", nullable = false, length = 1000)
     private String resposta;
 
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
 
-    @Column(name = "melhor_resposta", nullable = false)
+    @Column(name = "melhor_resposta", nullable = false, columnDefinition = "TINYINT")
     private boolean melhorResposta; // se tiver melhor resposta tópico é fechado
 
     @ManyToOne
@@ -45,7 +46,7 @@ public class Resposta {
 
     public void atualizarResposta(DadosRegistroReposta dados) {
         if(dados.resposta() != null){
-            this.resposta = dados.resposta();
+            this.resposta = dados.resposta().trim();
         }
     }
 

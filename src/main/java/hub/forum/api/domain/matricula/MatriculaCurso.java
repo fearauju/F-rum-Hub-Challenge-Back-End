@@ -1,6 +1,7 @@
 package hub.forum.api.domain.matricula;
 
 import hub.forum.api.domain.curso.Curso;
+import hub.forum.api.infra.exceptions.ValidacaoException;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -37,8 +38,21 @@ public class MatriculaCurso {
         this.concluido = false;
     }
 
+
+
     public void concluir() {
+        if (this.concluido) {
+            throw new ValidacaoException("Curso já concluído");
+        }
         this.concluido = true;
         this.dataConclusao = LocalDateTime.now();
+    }
+
+    public void validarNaoConcluido() {
+        if (this.concluido) {
+            throw new ValidacaoException(
+                    "Curso já concluído em " + this.dataConclusao
+            );
+        }
     }
 }

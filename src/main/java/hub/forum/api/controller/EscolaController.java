@@ -1,6 +1,8 @@
 package hub.forum.api.controller;
 
-import hub.forum.api.domain.escola.*;
+import hub.forum.api.domain.escola.dto.*;
+import hub.forum.api.domain.escola.service.EscolaService;
+import hub.forum.api.domain.util.PageResponse;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarEscola;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarEscola;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,11 @@ public class EscolaController {
     @Autowired
    private EscolaService service;
 
-    @Operation(summary = "Cadastrar uma nova escola",
-            description = "Apenas administradores podem realizar esta operação.")
+    @Operation(summary = "Cadastrar uma nova escola")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "403", description = "Sem permissão para cadastrar uma nova escola")
+            @ApiResponse(responseCode = "201", description = "Escola cadastrada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para cadastrar escola")
     })
     @PostMapping("/cadastrar_escola")
     @AutorizacaoCadastrarEscola
@@ -44,7 +46,7 @@ public class EscolaController {
 
         log.debug("Iniciando criação da uri");
         var uri = uriBuilder.path("/escolas/{id}")
-                .buildAndExpand(escola.escolaID())
+                .buildAndExpand(escola.escolaId())
                 .toUri();
 
         log.info("EscolaController retorna resultado da operação de cadastro");
@@ -52,22 +54,32 @@ public class EscolaController {
     }
 
     @Operation(summary = "Listar escolas",
-            description = "Listar as escolas cadastradas organizadas em ordem alfabética.")
+            description = "Lista todas as escolas cadastradas, com paginação")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para listar escolas")
+    })
     @GetMapping
-    public ResponseEntity<Page<DadosListagemEscola>> listarEscolas(
-            @PageableDefault(sort = {"nomeEscola"}) Pageable paginacao) {
+    public ResponseEntity<PageResponse<DadosListagemEscola>> listarEscolas(
+            @PageableDefault(size = 10, sort = {"nomeEscola"}) Pageable paginacao) {
 
-        log.info("Iniciando a busca por escolas cadastradas");
+        log.info("Buscando escolas. Página: {}, Tamanho: {}",
+                paginacao.getPageNumber(),
+                paginacao.getPageSize());
+
         var page = service.listarEscolas(paginacao);
+        var response = new PageResponse<>(page);
 
-        log.info("Retorna una lista paginada de escolas cadastradas");
-        return ResponseEntity.ok(page);
+        log.info("Encontradas {} escolas", page.getTotalElements());
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Atualizar escola",
-            description = "Apenas administradores podem realizar esta operação.")
+    @Operation(summary = "Atualizar escola")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "403", description = "Sem permissão para realizar esta operação")
+            @ApiResponse(responseCode = "200", description = "Escola atualizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para atualizar escola"),
+            @ApiResponse(responseCode = "404", description = "Escola não encontrada")
     })
     @PutMapping("/{id}/atualizar_escola")
     @AutorizacaoAtualizarEscola
@@ -75,7 +87,7 @@ public class EscolaController {
             @PathVariable Long id,
             @RequestBody @Valid DadosAtualizacaoEscola dados) {
 
-        log.info("Iniciando atualização de dados da escola  {}", dados.nomeEscola());
+        log.info("Iniciando atualização do nome da escola para  {}", dados.nomeEscola());
         var escola = service.atualizarDadosEscola(id, dados);
 
         log.info("retornando dados detalhados da escola após atualização");

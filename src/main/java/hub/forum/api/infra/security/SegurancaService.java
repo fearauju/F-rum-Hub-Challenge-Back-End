@@ -1,15 +1,18 @@
 package hub.forum.api.infra.security;
 
 import hub.forum.api.domain.curso.repository.CursoRepository;
-import hub.forum.api.domain.perfil.PerfilRepository;
-import hub.forum.api.domain.resposta.RespostaRepository;
-import hub.forum.api.domain.topico.TopicoRepository;
+import hub.forum.api.domain.perfil.repository.PerfilRepository;
+import hub.forum.api.domain.resposta.repository.RespostaRepository;
+import hub.forum.api.domain.topico.repository.TopicoRepository;
 import hub.forum.api.domain.usuario.Usuario;
+import hub.forum.api.domain.usuario.professor.Professor;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,11 +44,12 @@ public class SegurancaService {
         }
     }
 
-    public boolean podeAtualizarDadosUsuario(Long usuarioID) {
 
-            if (!getUsuarioLogado().getId().equals(usuarioID)) {
+    public boolean podeAtualizarDadosUsuario(Long usuarioId) {
+
+            if (!getUsuarioLogado().getId().equals(usuarioId)) {
                 log.warn("Tentativa de atualização não autorizada: Usuário {} tentou atualizar dados do usuário {}",
-                        getUsuarioLogado().getId(), usuarioID);
+                        getUsuarioLogado().getId(), usuarioId);
 
                 return false;
             }
@@ -54,28 +58,41 @@ public class SegurancaService {
     }
 
     //Perfil
-    public boolean podeAtualizarPerfil(Long perfilID) {
-        return perfilRepository.existsByIdAndUsuarioId(perfilID, getUsuarioLogado().getId());
+    public boolean podeAtualizarPerfil(Long perfilId) {
+        return perfilRepository.existsByIdAndUsuarioId(perfilId, getUsuarioLogado().getId());
     }
 
     //Curso
-    public boolean podeAtualizarCurso(Long cursoID, Long professorID) {
-        return cursoRepository.existsByIdAndProfessorId(cursoID, professorID);
+    public boolean podeAtualizarCurso(Long cursoId) {
+
+        var curso = cursoRepository.findById(cursoId)
+                .orElseThrow(() -> new ValidacaoException("Curso não encontrado"));
+
+        Set<Long> professorIds = curso.getProfessores().stream()
+                .map(Professor::getId)
+                .collect(Collectors.toSet());
+
+        return cursoRepository.existsByIdAndProfessores(
+                cursoId,
+                professorIds,
+                curso.getProfessores().size()
+        );
     }
 
 
     //Tópico
-    public boolean podeAtualizarTopico(Long topicoID) {
-        return topicoRepository.findByIdAndAutorId(topicoID, getUsuarioLogado().getId()).isPresent();
+    public boolean podeAtualizarTopico(Long topicoId) {
+        return topicoRepository.findByIdAndAutorId(topicoId, getUsuarioLogado().getId()).isPresent();
     }
 
 
     //Resposta
-    public boolean podeEscolherMelhorResposta(Long topicoID) {
-        return topicoRepository.findByIdAndAutorId(topicoID, getUsuarioLogado().getId()).isPresent();
+    public boolean podeEscolherMelhorResposta(Long topicoId) {
+        log.info("Verificando se o usuário é o autor do tópico");
+        return topicoRepository.findByIdAndAutorId(topicoId, getUsuarioLogado().getId()).isPresent();
     }
 
-    public boolean podeAtualizarResposta(Long topicoID,Long respostaID) {
-        return respostaRepository.findByIdAndTopicoId(respostaID, topicoID).isPresent();
+    public boolean podeAtualizarResposta(Long topicoId,Long respostaId) {
+        return respostaRepository.findByIdAndTopicoId(respostaId, topicoId).isPresent();
     }
 }

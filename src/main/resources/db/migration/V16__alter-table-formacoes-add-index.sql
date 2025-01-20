@@ -1,0 +1,1 @@
+ CREATE INDEX idx_formacao ON formacoes(formacao);

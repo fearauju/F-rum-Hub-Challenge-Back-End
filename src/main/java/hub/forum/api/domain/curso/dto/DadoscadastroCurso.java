@@ -20,7 +20,8 @@ public record DadoscadastroCurso(
                 message = "A duração deve estar no formato HH:mm, como '08:00'"
         )
         String duracao,
+
         @NotEmpty(message = "É necessário informar o nome do professor do curso")
-        List<String> professoresNomes
+        List<String> professores
 ) {
 }

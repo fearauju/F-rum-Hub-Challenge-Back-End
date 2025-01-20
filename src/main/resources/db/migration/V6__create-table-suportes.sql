@@ -1,5 +1,4 @@
 CREATE TABLE suportes(
-
    id BIGINT NOT NULL PRIMARY KEY,
    especializacoes VARCHAR(250) NOT NULL,
    turno_de_trabalho VARCHAR(20) NOT NULL,

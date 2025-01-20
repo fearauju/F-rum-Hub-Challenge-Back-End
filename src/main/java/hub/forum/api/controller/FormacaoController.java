@@ -5,6 +5,7 @@ import hub.forum.api.domain.formacao.dto.DadosCadastroFormacao;
 import hub.forum.api.domain.formacao.dto.DadosDetalhamentoFormacao;
 import hub.forum.api.domain.formacao.dto.DadosListagemFormacao;
 import hub.forum.api.domain.formacao.service.FormacaoService;
+import hub.forum.api.domain.util.PageResponse;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoAtualizarFormacao;
 import hub.forum.api.infra.security.anotacoes.AutorizacaoCadastrarFormacao;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +46,26 @@ public class FormacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemFormacao>> listarFormacoes(
+    public ResponseEntity<PageResponse<DadosListagemFormacao>> listarFormacoes(
             @PageableDefault(sort = {"formacao"}) Pageable paginacao) {
 
         var formacoes = service.listarFormacoes(paginacao);
         return ResponseEntity.ok(formacoes);
+    }
+
+    @GetMapping("/escola/{escolaId}")
+    public ResponseEntity<PageResponse<DadosListagemFormacao>> listarFormacoesPorEscola(
+            @PathVariable Long escolaId,
+            @PageableDefault( sort = {"formacao"}) Pageable paginacao) {
+
+        var formacoes = service.listarFormacoesPorEscola(escolaId, paginacao);
+        return ResponseEntity.ok(formacoes);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosDetalhamentoFormacao> detalhar(@PathVariable Long id) {
+        var formacao = service.detalharFormacao(id);
+        return ResponseEntity.ok(formacao);
     }
 
     @PutMapping(("/{id}"))

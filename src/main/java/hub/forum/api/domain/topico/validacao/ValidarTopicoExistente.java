@@ -1,22 +1,23 @@
 package hub.forum.api.domain.topico.validacao;
 
-import hub.forum.api.domain.topico.TopicoRepository;
-import hub.forum.api.domain.util.ValidadorBase;
+import hub.forum.api.domain.topico.repository.TopicoRepository;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidarTopicoExistente implements ValidadorBase<DadosValidacaoTopico> {
+public class ValidarTopicoExistente {
 
     @Autowired
     private TopicoRepository topicoRepository;
 
-    @Override
+
     public void validar(DadosValidacaoTopico dados) {
 
-        if (!topicoRepository.existsById(dados.topicoID())) {
-            throw new ValidacaoException("Tópico não encontrado");
+        if(dados.topicoId() != null){
+            if (!topicoRepository.existsById(dados.topicoId())) {
+                throw new ValidacaoException("Tópico não encontrado");
+            }
         }
     }
 }

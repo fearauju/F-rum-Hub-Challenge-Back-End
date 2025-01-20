@@ -1,9 +1,8 @@
 CREATE TABLE respostas(
-
     id BIGINT NOT NULL AUTO_INCREMENT,
     mensagem VARCHAR(1000) NOT NULL,
     data_criacao DATETIME NOT NULL,
-    melhor_resposta TINYINT DEFAULT FALSE,
+    melhor_resposta BOOLEAN DEFAULT FALSE,
     autor_id BIGINT NOT NULL,
     topico_id BIGINT NOT NULL,
 

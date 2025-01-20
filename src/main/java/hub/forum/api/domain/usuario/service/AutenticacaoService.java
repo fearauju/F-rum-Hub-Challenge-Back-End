@@ -1,33 +1,35 @@
 package hub.forum.api.domain.usuario.service;
 
-import hub.forum.api.domain.matricula.MatriculaService;
-
+import hub.forum.api.domain.matricula.repository.MatriculaRepository;
+import hub.forum.api.domain.usuario.TipoUsuario;
 import hub.forum.api.domain.usuario.repository.UsuarioRepository;
-import hub.forum.api.domain.usuario.estudante.Estudante;
+import hub.forum.api.infra.exceptions.EstudanteSemMatriculaException;
+import hub.forum.api.infra.security.RateLimitService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
 public class AutenticacaoService implements UserDetailsService {
 
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private MatriculaService matriculaService;
+    private MatriculaRepository matriculaRepository;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private RateLimitService rateLimitService;
 
     @Override
     @Transactional
@@ -36,7 +38,7 @@ public class AutenticacaoService implements UserDetailsService {
         try {
             var usuario = usuarioRepository.findByLoginAndAtivoTrue(login);
 
-            if(usuario == null){
+            if (usuario == null) {
                 log.error("Usuário não encontrado para o login: {}", login);
                 throw new UsernameNotFoundException("Usuário não encontrado");
             }
@@ -59,24 +61,37 @@ public class AutenticacaoService implements UserDetailsService {
                 throw new LockedException("Conta bloqueada após múltiplas tentativas");
             }
 
-            if (usuario instanceof Estudante) {
-                boolean matriculaAtiva = matriculaService.verificarStatusMatricula(usuario.getId());
-                log.debug("Verificação de matrícula para estudante: {}", matriculaAtiva);
+            // Verificação específica para estudantes
+            if (usuario.getTipoUsuario() == TipoUsuario.ESTUDANTE) {
 
-                if (!matriculaAtiva) {
-                    throw new DisabledException("Matrícula expirada");
+                var  matriculaOptional = matriculaRepository.findByEstudanteIdWithCursos(usuario.getId());
+                if (matriculaOptional.isEmpty()) {
+
+                    log.warn("Estudante ID {} não possui matrícula ativa.", usuario.getId());
+                    throw new EstudanteSemMatriculaException(
+                            "Estudante ainda não foi associado a uma matricula. Realize seu cadastro");
+                }
+
+                    var matricula = matriculaOptional.get();
+
+                // Verifica e atualiza o status da matrícula
+                if (LocalDateTime.now().isAfter(matricula.getDataExpiracaoAssinatura())) {
+
+                    matriculaRepository.alterarStatusMatricula(matricula.getId());
+
+                    log.warn("Matrícula do estudante ID {} expirada em {}",
+                            usuario.getId(), matricula.getDataExpiracaoAssinatura());
+                    throw new EstudanteSemMatriculaException("Matrícula expirada. É necessário renovar a matrícula para continuar a ter acesso à plataforma");
                 }
             }
 
-            usuarioService.registrarLoginSucesso(login);
             return usuario;
 
+        } catch (AuthenticationException e) {
+            throw e; // Repassar exceções de autenticação diretamente
         } catch (Exception e) {
-            log.error("Erro durante autenticação: {}", e.getMessage(), e);
-            if (e instanceof BadCredentialsException) {
-                usuarioService.registrarTentativaLoginFalha(login);
-            }
-            throw e;
+            log.error("Erro inesperado durante autenticação", e);
+            throw new AuthenticationServiceException("Erro interno durante autenticação", e);
         }
     }
 }

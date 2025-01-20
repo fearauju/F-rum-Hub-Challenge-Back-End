@@ -1,29 +1,31 @@
 package hub.forum.api.domain.resposta.validacao;
 
-import hub.forum.api.domain.resposta.DadosValidacaoResposta;
-import hub.forum.api.domain.resposta.RespostaRepository;
-import hub.forum.api.domain.util.ValidadorBase;
+import hub.forum.api.domain.resposta.OperacaoResposta;
+import hub.forum.api.domain.resposta.dto.DadosValidacaoResposta;
+import hub.forum.api.domain.resposta.repository.RespostaRepository;
+import hub.forum.api.domain.perfil.validacao.ValidadorPerfil;
 import hub.forum.api.infra.exceptions.ValidacaoException;
 import hub.forum.api.infra.security.SegurancaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidarAutorResposta implements ValidadorBase<DadosValidacaoResposta> {
-
+public class ValidarAutorResposta implements ValidadorResposta {
     @Autowired
     private RespostaRepository respostaRepository;
 
-    @Autowired
-    private SegurancaService segurancaService;
-
     @Override
-    public void validar(DadosValidacaoResposta dados) {
+    public void validar(DadosValidacaoResposta dados, OperacaoResposta operacao) {
 
-        var resposta = respostaRepository.getReferenceById(dados.respostaId());
+        if(operacao != OperacaoResposta.ATUALIZAR){
+            return;
+        }
 
-        if (!resposta.getAutor().equals(segurancaService.getUsuarioLogado())) {
-            throw new ValidacaoException("Apenas o autor pode alterar a resposta");
+        if (dados.respostaId() != null) {
+            var resposta = respostaRepository.getReferenceById(dados.respostaId());
+            if (!resposta.getAutor().getId().equals(dados.autorId())) {
+                throw new ValidacaoException("Apenas o autor pode alterar a resposta");
+            }
         }
     }
 }

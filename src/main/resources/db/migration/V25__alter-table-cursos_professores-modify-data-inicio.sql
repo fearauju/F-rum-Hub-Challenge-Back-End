@@ -1,0 +1,2 @@
+ALTER TABLE cursos_professores
+ALTER COLUMN data_inicio SET DEFAULT (CURRENT_DATE);

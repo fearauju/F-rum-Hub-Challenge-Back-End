@@ -1,0 +1,2 @@
+ ALTER TABLE escolas
+ ADD COLUMN area_formacao VARCHAR(50) NOT NULL;

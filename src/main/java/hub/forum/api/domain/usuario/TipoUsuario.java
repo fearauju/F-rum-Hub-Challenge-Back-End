@@ -15,6 +15,21 @@ public enum TipoUsuario {
         } // apenas da própria conta
 
         @Override
+        public boolean podeAtualizarProfessor() {
+            return true;
+        }
+
+        @Override
+        public boolean podeAtualizarEstudante() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarSuporte() {
+            return true;
+        }
+
+        @Override
         public boolean podeInativarUsuarios() {
             return true;
         }
@@ -31,6 +46,21 @@ public enum TipoUsuario {
 
         @Override
         public boolean podePesquisarPorUsuarios() {
+            return true;
+        }
+
+        @Override
+        public boolean podeBuscarrPorEstudante() {
+            return true;
+        }
+
+        @Override
+        public boolean podeReativarUsuario() {
+            return true;
+        }
+
+        @Override
+        public boolean podeRegistrarAcaoAdministrador() {
             return true;
         }
 
@@ -142,6 +172,21 @@ public enum TipoUsuario {
         }
 
         @Override
+        public boolean podeAtualizarProfessor() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarEstudante() {
+            return true;
+        }
+
+        @Override
+        public boolean podeAtualizarSuporte() {
+            return false;
+        }
+
+        @Override
         public boolean podeInativarUsuarios() {
             return false;
         }
@@ -158,6 +203,21 @@ public enum TipoUsuario {
 
         @Override
         public boolean podePesquisarPorUsuarios() {
+            return false;
+        }
+
+        @Override
+        public boolean podeBuscarrPorEstudante() {
+            return true;
+        }
+
+        @Override
+        public boolean podeReativarUsuario() {
+            return false;
+        }
+
+        @Override
+        public boolean podeRegistrarAcaoAdministrador() {
             return false;
         }
 
@@ -269,6 +329,21 @@ public enum TipoUsuario {
         }
 
         @Override
+        public boolean podeAtualizarProfessor() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarEstudante() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarSuporte() {
+            return false;
+        }
+
+        @Override
         public boolean podeInativarUsuarios() {
             return false;
         }
@@ -285,6 +360,21 @@ public enum TipoUsuario {
 
         @Override
         public boolean podePesquisarPorUsuarios() {
+            return false;
+        }
+
+        @Override
+        public boolean podeBuscarrPorEstudante() {
+            return true;
+        }
+
+        @Override
+        public boolean podeReativarUsuario() {
+            return false;
+        }
+
+        @Override
+        public boolean podeRegistrarAcaoAdministrador() {
             return false;
         }
 
@@ -396,6 +486,21 @@ public enum TipoUsuario {
         }
 
         @Override
+        public boolean podeAtualizarProfessor() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarEstudante() {
+            return false;
+        }
+
+        @Override
+        public boolean podeAtualizarSuporte() {
+            return false;
+        }
+
+        @Override
         public boolean podeInativarUsuarios() {
             return false;
         }
@@ -412,6 +517,21 @@ public enum TipoUsuario {
 
         @Override
         public boolean podePesquisarPorUsuarios() {
+            return false;
+        }
+
+        @Override
+        public boolean podeBuscarrPorEstudante() {
+            return true;
+        }
+
+        @Override
+        public boolean podeReativarUsuario() {
+            return false;
+        }
+
+        @Override
+        public boolean podeRegistrarAcaoAdministrador() {
             return false;
         }
 
@@ -510,10 +630,17 @@ public enum TipoUsuario {
 
     public abstract boolean podeCadastrarUsuarios();
     public abstract boolean podeAtualizarDadosUsuario(); // o próprio usuário
+    public abstract boolean podeAtualizarProfessor();
+    public abstract boolean podeAtualizarEstudante();
+    public abstract boolean podeAtualizarSuporte();
     public abstract boolean podeInativarUsuarios();// professores e suporte --> exclusão lógica
     public abstract boolean podeDesbloquearUsuarios(); // adm e suporte
     public abstract boolean podeRenovarAssinatura(); // Apenas exemplo, era para ser feito por meio de pagamento
     public abstract boolean podePesquisarPorUsuarios();
+    public abstract boolean podeBuscarrPorEstudante();
+    public abstract boolean podeReativarUsuario();
+    public abstract boolean podeRegistrarAcaoAdministrador();
+
 
     public abstract boolean podeCriarPerfil();
     public abstract boolean podeAtualizarPerfil();

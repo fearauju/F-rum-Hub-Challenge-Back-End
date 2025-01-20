@@ -1,6 +1,6 @@
 package hub.forum.api.domain.formacao.dto;
 
-import hub.forum.api.domain.formacao.AreaFormacao;
+import hub.forum.api.domain.escola.AreaFormacao;
 import hub.forum.api.domain.formacao.Formacao;
 
 public record DadosListagemFormacao(
@@ -15,7 +15,7 @@ public record DadosListagemFormacao(
 
     public DadosListagemFormacao(Formacao formacao){
         this(formacao.getEscola().getNomeEscola(),
-                formacao.getId(), formacao.getAreaFormacao(),
+                formacao.getId(), formacao.getEscola().getAreaFormacao(),
                 formacao.getFormacao(), formacao.getDescricao());
     }
 }

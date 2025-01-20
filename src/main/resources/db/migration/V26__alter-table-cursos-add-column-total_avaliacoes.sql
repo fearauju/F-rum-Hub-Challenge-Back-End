@@ -1,0 +1,1 @@
+ALTER TABLE cursos ADD COLUMN total_avaliacoes INTEGER DEFAULT 0;
