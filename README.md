@@ -142,7 +142,7 @@ Para facilitar os testes, disponibilizamos um arquivo SQL com dados iniciais:
    - Marcação de melhor resposta (exclusivo para autor do tópico)
    - Verificar estatísticas no Controller de Tópicos
 
-Estou mexendo nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Espero não ter deixade algum erro grosseiro,
+Estou trabalhando nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Espero não ter deixade algum erro grosseiro passar,
 ainda falta algumas coisas para concluir, mas espero que gostem.
 
 
