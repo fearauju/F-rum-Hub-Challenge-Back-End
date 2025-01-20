@@ -90,45 +90,57 @@ cd F-rum-Hub-Challenge-Back-End
 - O login é feito com o email e senha, armazena a senha em formato Hash usando Bcrypt. Essa parte é feita de forma interna, via terminal usando O
 banco de dados MYSQL.
 
-Pode usar esses dados para teste:
+### 🔑 Dados para Teste
 
-INSERT INTO usuarios (login, senha, tipo_usuario, ativo, bloqueado_permanente, ultimo_login, version) VALUES
--- Estudantes
-('joao.silva@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'ESTUDANTE', true, false, '2024-01-18 10:30:00', 0),
-('maria.santos@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'ESTUDANTE', true, false, '2024-01-18 11:00:00', 0),
-('pedro.oliveira@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'ESTUDANTE', true, false, '2024-01-18 09:15:00', 0),
+Para facilitar os testes, disponibilizamos um arquivo SQL com dados iniciais:
+    - Arquivo: [`dados_iniciais.sql`](dados_iniciais.sql)
+    - Contém: usuários de teste (estudantes, professores, suporte e admin)
 
--- Professores
-('carlos.professor@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'PROFESSOR', true, false, '2024-01-18 08:00:00', 0),
-('ana.professora@ghub.com',  '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'PROFESSOR', true, false, '2024-01-18 08:30:00', 0),
-('Paula.professora@ghub.com',  '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'PROFESSOR', true, false, '2024-01-18 08:30:00', 0),
-('Victor.professora@ghub.com',  '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'PROFESSOR', true, false, '2024-01-18 08:30:00', 0),
+> **Nota**: Todos os usuários de teste utilizam a senha padrão criptografada com BCrypt: `Sq@5687#21`
 
--- Suporte
-('paulo.suporte@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'SUPORTE', true, false, '2024-01-18 09:00:00', 0),
-('lucia.suporte@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'SUPORTE', true, false, '2024-01-18 09:30:00', 0),
-
-('Yamin.suporte@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'SUPORTE', true, false, '2024-01-18 09:30:00', 0),
-
--- Administrador
-('admin.sistema@hub.com', '$2a$12$kU4mewXQutAtiduL.untM.CH7xZBxR0lGNHX05Hk11OZjhNb4Zo3e', 'ADMINISTRADOR', true, false, '2024-01-18 07:00:00', 0);
-
--- Inserir administrador usando o ID do usuário recém-criado
-INSERT INTO administradores (id) 
-SELECT id FROM usuarios WHERE login = 'admin.sistema@hub.com';
 
 
 - Feito isto, o segundo passo pode ser feito no insomnia. Recomendo a seguinte ordem:
-1 - Cadastrar perfil de cada usuário (Principalmente o usuário Professor que se relaciona com a formacao e os cursos que leciona), exceto o usuário ESTUDANTE. Este só consegue logar se houver uma matrícula associada e ativa, não expirada.
-2 - Cadastrar Escola e sua área de formação -> Escola de Programação, Escola de Front-end, Escola de IA, etc.
-3 - Cadastrar Formação -> Java, HTML, CSS, Marchine Learning, etc.
-4 - Cadastrar Curso -> cadastrar curso individualmente para determinada formacao. (Opcional -> no cadastro da formação pode atribuir diversos cursos)
-5 - Cadastrar Estudante -> pode realizar o cadastro de estudante individualmente. A matrícula será para determinada Area de formação -> BACK_END, FRONT_END, IA, etc.
-6 - Inscrição de estudante em cursos -> pode realizar a inscrição em um dos cursos disponíveis da formação usando o Controller de Matrícula.
-6 - Cadastrar Tópico -> Somente estudantes podem criar tópicos com suas dúvidas e outros usuários possuem funções específicas como o suporte. Veja o controlador de Tópico.
-7 - Cadastrar Resposta -> os demais usuários podem responder aos tópicos, exceto administrador.
-8 - Marcar Resposta como Solução -> Somente o estudante pode marcar uma resposta como solução.
-9 - Após gerar tópicos e respostas com o suporte principalmente, verifique as estatísticas no controller da classe Tópicos.
+
+
+### 📝 Passos para Configuração no Insomnia
+
+1. **Cadastro de Perfis**
+   - Cadastrar perfil para cada usuário
+   - Obrigatório para Professores (relacionamento com formação e cursos)
+   - Opcional para Estudantes (requer matrícula ativa)
+
+2. **Configuração de Escolas**
+   - Cadastrar escolas e áreas de formação
+   - Exemplos: Escola de Programação, Front-end, IA
+
+3. **Cadastro de Formações**
+   - Cadastrar formações específicas
+   - Exemplos: Java, HTML, CSS, Machine Learning
+
+4. **Gestão de Cursos**
+   - Cadastrar cursos individualmente por formação
+   - Opcional: atribuir múltiplos cursos no cadastro da formação
+
+5. **Cadastro de Estudantes**
+   - Cadastro individual de estudantes
+   - Matrícula vinculada à área de formação (BACK_END, FRONT_END, IA)
+
+6. **Gestão de Matrículas**
+   - Inscrição em cursos disponíveis da formação
+   - Usar Controller de Matrícula
+
+7. **Criação de Tópicos**
+   - Exclusivo para estudantes
+   - Outros usuários têm funções específicas (ex: suporte)
+
+8. **Gestão de Respostas**
+   - Todos os usuários podem responder (exceto administrador)
+   - Verificar permissões no Controller de Tópico
+
+9. **Finalização de Tópicos**
+   - Marcação de melhor resposta (exclusivo para autor do tópico)
+   - Verificar estatísticas no Controller de Tópicos
 
 Estou mexendo nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Espero não ter deixade algum erro grosseiro,
 ainda falta algumas coisas para concluir, mas espero que gostem.
