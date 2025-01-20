@@ -116,13 +116,11 @@ public class RespostaService {
 
         // Atualiza estatísticas se for resposta do suporte
         if (resposta.getAutor().obterTipoUsuario() == TipoUsuario.SUPORTE) {
-
-            var suporte = suporteRepository.findUsuarioSuporte(resposta.getAutor().getId());
+            var suporte = suporteRepository.findById(resposta.getAutor().getId())
+                    .orElseThrow(() -> new ValidacaoException("Suporte não encontrado"));
 
             suporte.adicionarCasosResolvidos(dados, suporte);
             suporteRepository.save(suporte);
-
-            log.info("Estatísticas do suporte {} atualizadas", resposta.getAutor().getPerfil().getNome());
         }
 
         log.info("Tópico {} marcado como resolvido com a resposta {}", topicoId, respostaId);

@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 public class Resposta {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(name = "mensagem", nullable = false, length = 1000)
@@ -45,7 +46,7 @@ public class Resposta {
     }
 
     public void atualizarResposta(DadosRegistroReposta dados) {
-        if(dados.resposta() != null){
+        if (dados.resposta() != null) {
             this.resposta = dados.resposta().trim();
         }
     }
@@ -55,3 +56,4 @@ public class Resposta {
         topico.marcarComoResolvido();
     }
 }
+

@@ -5,7 +5,7 @@ import hub.forum.api.domain.resposta.Resposta;
 import java.time.LocalDateTime;
 
 public record DadosListagemResposta(
-        Long id,
+        Long respostaId,
         String mensagem,
         LocalDateTime dataCriacao,
         String autorNome

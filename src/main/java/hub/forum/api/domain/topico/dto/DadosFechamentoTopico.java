@@ -5,6 +5,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import java.time.Duration;
+
 public record DadosFechamentoTopico(
 
         @NotNull(message = "Informe uma nota para o suporte")
