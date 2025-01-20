@@ -142,7 +142,7 @@ Para facilitar os testes, disponibilizamos um arquivo SQL com dados iniciais:
    - Marcação de melhor resposta (exclusivo para autor do tópico)
    - Verificar estatísticas no Controller de Tópicos
 
-Estou trabalhando nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Em geral o projeto teve que ser remodelado algumas vezes, o que causa erros nos relacionamentos entre as entidades. Espero não ter deixade algum erro grosseiro passar, ainda falta algumas coisas para concluir, mas a aprte principal parece estar funconando. Espero que gostem.
+Estou trabalhando nesse projeto desde dezembro e terminei hoje (20/01/2025), devido alguns bugs que fui corrigindo ao encontrar. Em geral o projeto teve que ser remodelado algumas vezes, porque ocorria diversos erros e a causa principal era o problema nos relacionamentos entre as entidades. Espero não ter deixade algum erro grosseiro passar, ainda falta algumas coisas para concluir, mas a aprte principal parece estar funconando. Espero que gostem.
 
 ---
 
