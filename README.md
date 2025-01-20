@@ -93,7 +93,7 @@ banco de dados MYSQL.
 ### 🔑 Dados para Teste
 
 Para facilitar os testes, disponibilizamos um arquivo SQL com dados iniciais:
-    - Arquivo: [`dados_iniciais.sql`](dados_iniciais.sql)
+    - Arquivo:  [`script/dados_iniciais.sql`](script/dados_iniciais.sql)
     - Contém: usuários de teste (estudantes, professores, suporte e admin)
 
 > **Nota**: Todos os usuários de teste utilizam a senha padrão criptografada com BCrypt: `Sq@5687#21`
